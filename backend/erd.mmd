@@ -1,0 +1,74 @@
+erDiagram
+    USER {
+      UUID id PK
+      STRING email
+      STRING password
+      STRING name
+      ENUM role
+      DATETIME createdAt
+      DATETIME updatedAt
+    }
+    PRODUCT {
+      UUID id PK
+      STRING name
+      STRING description
+      FLOAT price
+      INT stock
+      STRING[] images
+      UUID categoryId FK
+      DATETIME createdAt
+      DATETIME updatedAt
+    }
+    CATEGORY {
+      UUID id PK
+      STRING name
+      DATETIME createdAt
+      DATETIME updatedAt
+    }
+    CART {
+      UUID id PK
+      UUID userId FK
+      DATETIME createdAt
+      DATETIME updatedAt
+    }
+    CART_ITEM {
+      UUID id PK
+      UUID cartId FK
+      UUID productId FK
+      INT quantity
+      DATETIME createdAt
+      DATETIME updatedAt
+    }
+    ORDER {
+      UUID id PK
+      UUID userId FK
+      FLOAT total
+      ENUM status
+      DATETIME createdAt
+      DATETIME updatedAt
+    }
+    ORDER_ITEM {
+      UUID id PK
+      UUID orderId FK
+      UUID productId FK
+      INT quantity
+      FLOAT price
+      DATETIME createdAt
+      DATETIME updatedAt
+    }
+    ORDER_HISTORY {
+      UUID id PK
+      UUID orderId FK
+      ENUM status
+      STRING note
+      DATETIME createdAt
+    }
+    USER ||--o{ ORDER : places
+    USER ||--|| CART : owns
+    CART ||--o{ CART_ITEM : contains
+    PRODUCT ||--o{ CART_ITEM : in
+    CATEGORY ||--o{ PRODUCT : has
+    ORDER ||--o{ ORDER_ITEM : contains
+    PRODUCT ||--o{ ORDER_ITEM : in
+    ORDER ||--o{ ORDER_HISTORY : has
+    USER ||--o{ ORDER : places 

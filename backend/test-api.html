@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 3px; white-space: pre-wrap; }
+        input, textarea { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>E-commerce API Test</h1>
+    
+    <div class="test-section">
+        <h3>1. Test API Root</h3>
+        <button onclick="testRoot()">Test Root Endpoint</button>
+        <div id="root-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Register User</h3>
+        <input type="text" id="reg-name" placeholder="Name" value="Test User">
+        <input type="email" id="reg-email" placeholder="Email" value="test@example.com">
+        <input type="password" id="reg-password" placeholder="Password" value="password123">
+        <button onclick="registerUser()">Register</button>
+        <div id="register-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Login User</h3>
+        <input type="email" id="login-email" placeholder="Email" value="test@example.com">
+        <input type="password" id="login-password" placeholder="Password" value="password123">
+        <button onclick="loginUser()">Login</button>
+        <div id="login-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Get Profile (requires token)</h3>
+        <input type="text" id="auth-token" placeholder="JWT Token (from login)">
+        <button onclick="getProfile()">Get Profile</button>
+        <div id="profile-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Get Orders (requires token)</h3>
+        <button onclick="getOrders()">Get Orders</button>
+        <div id="orders-result" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+
+        async function testRoot() {
+            try {
+                const response = await fetch(`${API_BASE}/`);
+                const data = await response.json();
+                document.getElementById('root-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('root-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function registerUser() {
+            try {
+                const userData = {
+                    name: document.getElementById('reg-name').value,
+                    email: document.getElementById('reg-email').value,
+                    password: document.getElementById('reg-password').value
+                };
+
+                const response = await fetch(`${API_BASE}/api/users/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+                document.getElementById('register-result').textContent = JSON.stringify(data, null, 2);
+                
+                if (data.token) {
+                    document.getElementById('auth-token').value = data.token;
+                }
+            } catch (error) {
+                document.getElementById('register-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function loginUser() {
+            try {
+                const userData = {
+                    email: document.getElementById('login-email').value,
+                    password: document.getElementById('login-password').value
+                };
+
+                const response = await fetch(`${API_BASE}/api/users/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+                document.getElementById('login-result').textContent = JSON.stringify(data, null, 2);
+                
+                if (data.token) {
+                    document.getElementById('auth-token').value = data.token;
+                }
+            } catch (error) {
+                document.getElementById('login-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function getProfile() {
+            try {
+                const token = document.getElementById('auth-token').value;
+                if (!token) {
+                    document.getElementById('profile-result').textContent = 'Please provide a token first';
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE}/api/users/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                document.getElementById('profile-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('profile-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function getOrders() {
+            try {
+                const token = document.getElementById('auth-token').value;
+                if (!token) {
+                    document.getElementById('orders-result').textContent = 'Please provide a token first';
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE}/api/users/orders`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                document.getElementById('orders-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('orders-result').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html> 
