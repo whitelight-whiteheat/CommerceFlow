@@ -208,4 +208,4 @@ If you encounter any issues or have questions, please open an issue on GitHub.
 - [ ] Analytics dashboard
 - [ ] Inventory management
 - [ ] Shipping integration
-- [ ] Customer support system 
+- [ ] Customer support system
