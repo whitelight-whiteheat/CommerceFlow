@@ -6,21 +6,52 @@ interface Product {
   description: string;
   price: number;
   stock: number;
-  category: string;
+  category: {
+    id: string;
+    name: string;
+  };
   imageUrl?: string;
+  createdAt: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+}
+
+interface ProductFormData {
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  categoryId: string;
+  imageUrl: string;
 }
 
 const Products: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [formData, setFormData] = useState<ProductFormData>({
+    name: '',
+    description: '',
+    price: 0,
+    stock: 0,
+    categoryId: '',
+    imageUrl: ''
+  });
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
 
   const fetchProducts = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('adminToken');
       const response = await fetch('http://localhost:3001/api/admin/products', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -30,13 +61,141 @@ const Products: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setProducts(data);
+        setProducts(data.products || []);
       }
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch('http://localhost:3001/api/admin/categories', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const handleAddProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch('http://localhost:3001/api/products', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setShowAddModal(false);
+        setFormData({
+          name: '',
+          description: '',
+          price: 0,
+          stock: 0,
+          categoryId: '',
+          imageUrl: ''
+        });
+        fetchProducts();
+      }
+    } catch (error) {
+      console.error('Error adding product:', error);
+    }
+  };
+
+  const handleEditProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`http://localhost:3001/api/products/${editingProduct.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setShowEditModal(false);
+        setEditingProduct(null);
+        setFormData({
+          name: '',
+          description: '',
+          price: 0,
+          stock: 0,
+          categoryId: '',
+          imageUrl: ''
+        });
+        fetchProducts();
+      }
+    } catch (error) {
+      console.error('Error updating product:', error);
+    }
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+
+    try {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`http://localhost:3001/api/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        fetchProducts();
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  };
+
+  const openEditModal = (product: Product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      stock: product.stock,
+      categoryId: product.category.id,
+      imageUrl: product.imageUrl || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const openAddModal = () => {
+    setFormData({
+      name: '',
+      description: '',
+      price: 0,
+      stock: 0,
+      categoryId: '',
+      imageUrl: ''
+    });
+    setShowAddModal(true);
   };
 
   if (loading) {
@@ -51,13 +210,21 @@ const Products: React.FC = () => {
     <div className="space-y-6">
       <div className="card">
         <div className="card-header">
-          <h1 className="card-title">Products Management</h1>
+          <div className="flex justify-between items-center">
+            <h1 className="card-title">Products Management</h1>
+            <button 
+              onClick={openAddModal}
+              className="btn btn-primary"
+            >
+              + Add Product
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="card">
         <div className="card-header">
-          <h2 className="card-title">All Products</h2>
+          <h2 className="card-title">All Products ({products.length})</h2>
         </div>
         
         <div style={{ overflowX: 'auto' }}>
@@ -69,13 +236,14 @@ const Products: React.FC = () => {
                 <th>Category</th>
                 <th>Price</th>
                 <th>Stock</th>
+                <th>Created</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {products.map((product) => (
                 <tr key={product.id}>
-                  <td style={{ fontFamily: 'monospace' }}>#{product.id}</td>
+                  <td style={{ fontFamily: 'monospace' }}>#{product.id.slice(0, 8)}...</td>
                   <td>
                     <div>
                       <div style={{ fontWeight: '500' }}>{product.name}</div>
@@ -84,17 +252,31 @@ const Products: React.FC = () => {
                       </div>
                     </div>
                   </td>
-                  <td>{product.category}</td>
+                  <td>{product.category.name}</td>
                   <td>${product.price.toFixed(2)}</td>
                   <td>
                     <span className={`badge ${product.stock > 10 ? 'badge-success' : product.stock > 0 ? 'badge-warning' : 'badge-danger'}`}>
                       {product.stock} in stock
                     </span>
                   </td>
+                  <td>{new Date(product.createdAt).toLocaleDateString()}</td>
                   <td>
-                    <button className="btn btn-primary" style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}>
-                      Edit
-                    </button>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => openEditModal(product)}
+                        className="btn btn-primary" 
+                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteProduct(product.id)}
+                        className="btn btn-danger" 
+                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -102,6 +284,190 @@ const Products: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Add Product Modal */}
+      {showAddModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h3>Add New Product</h3>
+              <button onClick={() => setShowAddModal(false)} className="modal-close">&times;</button>
+            </div>
+            <form onSubmit={handleAddProduct}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>Name</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    required
+                    className="form-input"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Description</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({...formData, description: e.target.value})}
+                    required
+                    className="form-input"
+                    rows={3}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Category</label>
+                  <select
+                    value={formData.categoryId}
+                    onChange={(e) => setFormData({...formData, categoryId: e.target.value})}
+                    required
+                    className="form-input"
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map(category => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="form-group">
+                    <label>Price</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.price}
+                      onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value)})}
+                      required
+                      className="form-input"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Stock</label>
+                    <input
+                      type="number"
+                      value={formData.stock}
+                      onChange={(e) => setFormData({...formData, stock: parseInt(e.target.value)})}
+                      required
+                      className="form-input"
+                    />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Image URL (optional)</label>
+                  <input
+                    type="url"
+                    value={formData.imageUrl}
+                    onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+                    className="form-input"
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" onClick={() => setShowAddModal(false)} className="btn btn-secondary">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Add Product
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Product Modal */}
+      {showEditModal && editingProduct && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h3>Edit Product</h3>
+              <button onClick={() => setShowEditModal(false)} className="modal-close">&times;</button>
+            </div>
+            <form onSubmit={handleEditProduct}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>Name</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    required
+                    className="form-input"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Description</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({...formData, description: e.target.value})}
+                    required
+                    className="form-input"
+                    rows={3}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Category</label>
+                  <select
+                    value={formData.categoryId}
+                    onChange={(e) => setFormData({...formData, categoryId: e.target.value})}
+                    required
+                    className="form-input"
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map(category => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="form-group">
+                    <label>Price</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.price}
+                      onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value)})}
+                      required
+                      className="form-input"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Stock</label>
+                    <input
+                      type="number"
+                      value={formData.stock}
+                      onChange={(e) => setFormData({...formData, stock: parseInt(e.target.value)})}
+                      required
+                      className="form-input"
+                    />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Image URL (optional)</label>
+                  <input
+                    type="url"
+                    value={formData.imageUrl}
+                    onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+                    className="form-input"
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" onClick={() => setShowEditModal(false)} className="btn btn-secondary">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Update Product
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

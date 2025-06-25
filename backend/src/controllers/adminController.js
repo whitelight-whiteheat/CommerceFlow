@@ -432,10 +432,121 @@ const getSalesAnalytics = async (req, res) => {
   }
 };
 
+// Get comprehensive analytics data
+const getAnalytics = async (req, res) => {
+  try {
+    const { period = '30' } = req.query; // days
+    const daysAgo = new Date();
+    daysAgo.setDate(daysAgo.getDate() - parseInt(period));
+
+    // Get sales data for the period
+    const salesData = await prisma.order.findMany({
+      where: {
+        createdAt: {
+          gte: daysAgo
+        },
+        status: {
+          in: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED']
+        }
+      },
+      include: {
+        items: {
+          include: {
+            product: {
+              select: {
+                name: true,
+                category: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'asc'
+      }
+    });
+
+    // Calculate total sales and orders
+    const totalSales = salesData.reduce((sum, order) => sum + order.total, 0);
+    const totalOrders = salesData.length;
+    const averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
+
+    // Calculate daily sales
+    const dailySales = {};
+    salesData.forEach(order => {
+      const date = order.createdAt.toISOString().split('T')[0];
+      if (!dailySales[date]) {
+        dailySales[date] = {
+          total: 0,
+          orders: 0
+        };
+      }
+      dailySales[date].total += order.total;
+      dailySales[date].orders += 1;
+    });
+
+    // Convert to array and sort by date
+    const salesByMonth = Object.entries(dailySales)
+      .map(([date, data]) => ({
+        month: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        sales: data.total
+      }))
+      .sort((a, b) => new Date(a.month) - new Date(b.month));
+
+    // Get top selling products
+    const productSales = {};
+    salesData.forEach(order => {
+      order.items.forEach(item => {
+        const productName = item.product.name;
+        if (!productSales[productName]) {
+          productSales[productName] = 0;
+        }
+        productSales[productName] += item.price * item.quantity;
+      });
+    });
+
+    const topProducts = Object.entries(productSales)
+      .map(([name, sales]) => ({ name, sales }))
+      .sort((a, b) => b.sales - a.sales)
+      .slice(0, 10);
+
+    // Get user registration analytics
+    const userRegistrations = await prisma.user.groupBy({
+      by: ['createdAt'],
+      _count: true,
+      where: {
+        createdAt: {
+          gte: daysAgo
+        }
+      }
+    });
+
+    const userRegistrationsByMonth = userRegistrations
+      .map(reg => ({
+        month: reg.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        users: reg._count
+      }))
+      .sort((a, b) => new Date(a.month) - new Date(b.month));
+
+    res.json({
+      totalSales,
+      totalOrders,
+      averageOrderValue,
+      topProducts,
+      salesByMonth,
+      userRegistrationsByMonth
+    });
+  } catch (error) {
+    console.error('Analytics error:', error);
+    res.status(500).json({ message: 'Error fetching analytics' });
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getAllOrders,
   getAllUsers,
   getInventoryOverview,
-  getSalesAnalytics
+  getSalesAnalytics,
+  getAnalytics
 }; 

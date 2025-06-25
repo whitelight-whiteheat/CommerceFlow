@@ -12,20 +12,25 @@ interface AnalyticsData {
     month: string;
     sales: number;
   }>;
+  userRegistrationsByMonth: Array<{
+    month: string;
+    users: number;
+  }>;
 }
 
 const Analytics: React.FC = () => {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState('30');
 
   useEffect(() => {
     fetchAnalytics();
-  }, []);
+  }, [period]);
 
   const fetchAnalytics = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/admin/analytics', {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch(`http://localhost:3001/api/admin/analytics?period=${period}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -66,12 +71,24 @@ const Analytics: React.FC = () => {
     <div className="space-y-6">
       <div className="card">
         <div className="card-header">
-          <h1 className="card-title">Analytics Dashboard</h1>
+          <div className="flex justify-between items-center">
+            <h1 className="card-title">Analytics Dashboard</h1>
+            <select 
+              value={period} 
+              onChange={(e) => setPeriod(e.target.value)}
+              className="form-input"
+              style={{ width: 'auto' }}
+            >
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 grid-cols-2 grid-cols-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="card">
           <div className="flex items-center justify-between">
             <div>
@@ -115,59 +132,105 @@ const Analytics: React.FC = () => {
         </div>
       </div>
 
-      {/* Top Products */}
-      <div className="card">
-        <div className="card-header">
-          <h2 className="card-title">Top Selling Products</h2>
-        </div>
-        
-        <div style={{ overflowX: 'auto' }}>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Product</th>
-                <th>Sales</th>
-              </tr>
-            </thead>
-            <tbody>
-              {analytics.topProducts.map((product, index) => (
-                <tr key={index}>
-                  <td style={{ fontWeight: '600' }}>#{index + 1}</td>
-                  <td>{product.name}</td>
-                  <td>${product.sales.toFixed(2)}</td>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Top Products */}
+        <div className="card">
+          <div className="card-header">
+            <h2 className="card-title">Top Selling Products</h2>
+          </div>
+          
+          <div style={{ overflowX: 'auto' }}>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Product</th>
+                  <th>Sales</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {analytics.topProducts.length > 0 ? (
+                  analytics.topProducts.map((product, index) => (
+                    <tr key={index}>
+                      <td style={{ fontWeight: '600' }}>#{index + 1}</td>
+                      <td>{product.name}</td>
+                      <td>${product.sales.toFixed(2)}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3} style={{ textAlign: 'center', color: '#6b7280' }}>
+                      No sales data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Sales by Month */}
+        <div className="card">
+          <div className="card-header">
+            <h2 className="card-title">Sales by Day</h2>
+          </div>
+          
+          <div style={{ overflowX: 'auto' }}>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Sales</th>
+                </tr>
+              </thead>
+              <tbody>
+                {analytics.salesByMonth.length > 0 ? (
+                  analytics.salesByMonth.map((month, index) => (
+                    <tr key={index}>
+                      <td>{month.month}</td>
+                      <td>${month.sales.toFixed(2)}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={2} style={{ textAlign: 'center', color: '#6b7280' }}>
+                      No sales data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      {/* Sales by Month */}
-      <div className="card">
-        <div className="card-header">
-          <h2 className="card-title">Sales by Month</h2>
-        </div>
-        
-        <div style={{ overflowX: 'auto' }}>
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Month</th>
-                <th>Sales</th>
-              </tr>
-            </thead>
-            <tbody>
-              {analytics.salesByMonth.map((month, index) => (
-                <tr key={index}>
-                  <td>{month.month}</td>
-                  <td>${month.sales.toFixed(2)}</td>
+      {/* User Registrations */}
+      {analytics.userRegistrationsByMonth && analytics.userRegistrationsByMonth.length > 0 && (
+        <div className="card">
+          <div className="card-header">
+            <h2 className="card-title">User Registrations</h2>
+          </div>
+          
+          <div style={{ overflowX: 'auto' }}>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>New Users</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {analytics.userRegistrationsByMonth.map((month, index) => (
+                  <tr key={index}>
+                    <td>{month.month}</td>
+                    <td>{month.users}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

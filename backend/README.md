@@ -1,64 +1,151 @@
 # E-commerce Platform Backend
 
-## Setup Instructions
+A robust Node.js backend for an e-commerce platform with admin dashboard, product management, and analytics.
 
-1. Install dependencies:
-```bash
-npm install
+## 🚀 Quick Start
+
+### Prerequisites
+- Docker and Docker Compose
+- Node.js 18+ (for local development)
+
+### Running with Docker (Recommended)
+
+1. **Start the application:**
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **Access the services:**
+   - Backend API: http://localhost:3001
+   - Admin Dashboard: http://localhost:3002
+   - Database: localhost:5432
+   - PgAdmin: http://localhost:5050
+
+3. **Login credentials:**
+   - Email: `admin@example.com`
+   - Password: `admin123`
+
+## 📁 Project Structure
+
+```
+backend/
+├── src/                    # Source code
+│   ├── controllers/        # Route controllers
+│   ├── middleware/         # Custom middleware
+│   ├── routes/            # API routes
+│   ├── config/            # Configuration files
+│   └── app.js             # Express app setup
+├── prisma/                # Database schema and migrations
+├── scripts/               # Utility scripts (see scripts/README.md)
+├── docs/                  # Documentation (see docs/README.md)
+├── docker-compose.yml     # Docker services configuration
+├── Dockerfile            # Backend container definition
+└── package.json          # Dependencies and scripts
 ```
 
-2. Create a `.env` file in the root directory with the following variables:
-```
-PORT=5000
-NODE_ENV=development
-DATABASE_URL="postgresql://postgres:your_password@localhost:5432/ecommerce_db"
-JWT_SECRET="your-super-secret-key-change-in-production"
-```
+## 🔧 Development
 
-3. Initialize Prisma:
-```bash
-npx prisma init
-```
+### Local Development Setup
 
-4. Start the development server:
-```bash
-npm run dev
-```
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-## Project Structure
+2. **Set up environment:**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your database credentials
+   ```
 
-```
-src/
-├── controllers/     # Route controllers
-├── models/         # Database models
-├── routes/         # API routes
-├── middleware/     # Custom middleware
-├── utils/          # Utility functions
-├── config/         # Configuration files
-└── index.js        # Entry point
-```
+3. **Run database migrations:**
+   ```bash
+   npx prisma migrate dev
+   ```
 
-## API Endpoints
+4. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+### Database Management
+
+- **Generate Prisma client:** `npx prisma generate`
+- **Run migrations:** `npx prisma migrate dev`
+- **Reset database:** `npx prisma migrate reset`
+- **View database:** `npx prisma studio`
+
+## 📊 API Endpoints
 
 ### Authentication
-- POST /api/auth/register - Register a new user
-- POST /api/auth/login - Login user
-- GET /api/auth/me - Get current user
+- `POST /api/users/login` - User login
+- `POST /api/users/register` - User registration
+- `GET /api/users/profile` - Get user profile
+
+### Admin Routes (Require ADMIN role)
+- `GET /api/admin/dashboard` - Dashboard statistics
+- `GET /api/admin/products` - List all products
+- `GET /api/admin/orders` - List all orders
+- `GET /api/admin/users` - List all users
+- `GET /api/admin/analytics` - Analytics data
 
 ### Products
-- GET /api/products - Get all products
-- GET /api/products/:id - Get product by ID
-- POST /api/products - Create new product (admin only)
-- PUT /api/products/:id - Update product (admin only)
-- DELETE /api/products/:id - Delete product (admin only)
+- `GET /api/products` - List products
+- `POST /api/products` - Create product (Admin)
+- `PUT /api/products/:id` - Update product (Admin)
+- `DELETE /api/products/:id` - Delete product (Admin)
 
 ### Orders
-- GET /api/orders - Get user orders
-- POST /api/orders - Create new order
-- GET /api/orders/:id - Get order by ID
+- `GET /api/orders` - List user orders
+- `POST /api/orders` - Create order
+- `GET /api/orders/:id` - Get order details
 
-### Cart
-- GET /api/cart - Get user cart
-- POST /api/cart - Add item to cart
-- PUT /api/cart/:id - Update cart item
-- DELETE /api/cart/:id - Remove item from cart 
+## 🛠️ Available Scripts
+
+- `npm run dev` - Start development server
+- `npm start` - Start production server
+- `npm test` - Run tests
+- `npm run build` - Build for production
+
+## 🔒 Security Features
+
+- JWT authentication
+- Role-based access control (USER/ADMIN)
+- Input validation and sanitization
+- Rate limiting
+- CORS protection
+- Helmet security headers
+
+## 📈 Features
+
+- **User Management:** Registration, authentication, profile management
+- **Product Management:** CRUD operations, categories, inventory tracking
+- **Order Management:** Order creation, status tracking, history
+- **Analytics Dashboard:** Sales metrics, product performance, user analytics
+- **Admin Dashboard:** Comprehensive admin interface
+
+## 🐳 Docker
+
+The application is containerized with Docker:
+
+- **Backend:** Node.js application
+- **Database:** PostgreSQL with persistent storage
+- **PgAdmin:** Database management interface
+
+## 📝 Documentation
+
+- [API Documentation](http://localhost:3001/api-docs) - Swagger UI
+- [Database Schema](docs/erd.mmd) - Entity Relationship Diagram
+- [Scripts Documentation](scripts/README.md) - Utility scripts guide
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License. 
