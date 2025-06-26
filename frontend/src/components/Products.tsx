@@ -51,7 +51,7 @@ const Products: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('authToken');
       const response = await fetch('http://localhost:3001/api/admin/products', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -62,6 +62,8 @@ const Products: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setProducts(data.products || []);
+      } else {
+        console.error('Failed to fetch products:', response.status);
       }
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -72,7 +74,7 @@ const Products: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('authToken');
       const response = await fetch('http://localhost:3001/api/admin/categories', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -83,6 +85,8 @@ const Products: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setCategories(data);
+      } else {
+        console.error('Failed to fetch categories:', response.status);
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -92,7 +96,7 @@ const Products: React.FC = () => {
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('authToken');
       const response = await fetch('http://localhost:3001/api/products', {
         method: 'POST',
         headers: {
@@ -113,9 +117,13 @@ const Products: React.FC = () => {
           imageUrl: ''
         });
         fetchProducts();
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || 'Failed to add product');
       }
     } catch (error) {
       console.error('Error adding product:', error);
+      alert('Failed to add product');
     }
   };
 
@@ -124,7 +132,7 @@ const Products: React.FC = () => {
     if (!editingProduct) return;
 
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`http://localhost:3001/api/products/${editingProduct.id}`, {
         method: 'PUT',
         headers: {
@@ -146,9 +154,13 @@ const Products: React.FC = () => {
           imageUrl: ''
         });
         fetchProducts();
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || 'Failed to update product');
       }
     } catch (error) {
       console.error('Error updating product:', error);
+      alert('Failed to update product');
     }
   };
 
@@ -156,7 +168,7 @@ const Products: React.FC = () => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
 
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`http://localhost:3001/api/products/${productId}`, {
         method: 'DELETE',
         headers: {
@@ -167,9 +179,13 @@ const Products: React.FC = () => {
 
       if (response.ok) {
         fetchProducts();
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || 'Failed to delete product');
       }
     } catch (error) {
       console.error('Error deleting product:', error);
+      alert('Failed to delete product');
     }
   };
 

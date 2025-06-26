@@ -29,7 +29,7 @@ const Analytics: React.FC = () => {
 
   const fetchAnalytics = async () => {
     try {
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem('authToken');
       const response = await fetch(`http://localhost:3001/api/admin/analytics?period=${period}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -40,6 +40,8 @@ const Analytics: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setAnalytics(data);
+      } else {
+        console.error('Failed to fetch analytics:', response.status);
       }
     } catch (error) {
       console.error('Error fetching analytics:', error);

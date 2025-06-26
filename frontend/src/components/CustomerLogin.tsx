@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import './Login.css';
+import './CustomerLogin.css';
 
-const Login: React.FC = () => {
+interface CustomerLoginProps {
+  onSwitchToRegister: () => void;
+}
+
+const CustomerLogin: React.FC<CustomerLoginProps> = ({ onSwitchToRegister }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,7 +20,6 @@ const Login: React.FC = () => {
 
     try {
       await login(email, password);
-      // Admin login successful - redirect handled by App component
     } catch (error: any) {
       setError(error.message);
     } finally {
@@ -25,10 +28,10 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h2>Admin Login</h2>
-        <p className="subtitle">Access the admin dashboard</p>
+    <div className="customer-login-container">
+      <div className="customer-login-card">
+        <h2>Welcome Back</h2>
+        <p className="subtitle">Sign in to your account</p>
         
         {error && <div className="error-message">{error}</div>}
         
@@ -38,10 +41,12 @@ const Login: React.FC = () => {
             <input
               type="email"
               id="email"
+              name="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              placeholder="Enter admin email"
+              placeholder="Enter your email"
             />
           </div>
           
@@ -50,10 +55,12 @@ const Login: React.FC = () => {
             <input
               type="password"
               id="password"
+              name="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="Enter password"
+              placeholder="Enter your password"
             />
           </div>
           
@@ -62,11 +69,12 @@ const Login: React.FC = () => {
           </button>
         </form>
         
-        <div className="login-footer">
+        <div className="switch-form">
           <p>
-            <a href="/" className="back-link">
-              ← Back to Store
-            </a>
+            Don't have an account?{' '}
+            <button type="button" onClick={onSwitchToRegister} className="switch-button">
+              Sign up here
+            </button>
           </p>
         </div>
       </div>
@@ -74,4 +82,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login; 
+export default CustomerLogin; 

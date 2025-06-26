@@ -8,10 +8,12 @@ interface User {
   email: string;
   role: 'USER' | 'ADMIN';
 }
+
 // interface for AuthContextType
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
@@ -26,14 +28,15 @@ export const useAuth = () => {
   }
   return context;
 };
+
 // AuthProvider component
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-// check if token is in local storage
+  // check if token is in local storage
   useEffect(() => {
-    const token = localStorage.getItem('adminToken');
+    const token = localStorage.getItem('authToken');
     if (token) {
       // set default authorization header
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -41,15 +44,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // verify token by getting user profile
       axios.get('http://localhost:3001/api/users/profile')
         .then(response => {
-          if (response.data.role === 'ADMIN') {
-            setUser(response.data);
-          } else {
-            localStorage.removeItem('adminToken');
-            delete axios.defaults.headers.common['Authorization'];
-          }
+          setUser(response.data);
         })
         .catch(() => {
-          localStorage.removeItem('adminToken');
+          localStorage.removeItem('authToken');
           delete axios.defaults.headers.common['Authorization'];
         })
         .finally(() => {
@@ -60,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-// login function
+  // login function
   const login = async (email: string, password: string) => {
     try {
       const response = await axios.post('http://localhost:3001/api/users/login', {
@@ -68,29 +66,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         password
       });
 
-// get token and user data from response
+      // get token and user data from response
       const { token, user: userData } = response.data;
-      if (userData.role !== 'ADMIN') {
-        throw new Error('Access denied. Admin role required.');
-      }
-// set token and user data in local storage
-      localStorage.setItem('adminToken', token);
+      
+      // set token and user data in local storage
+      localStorage.setItem('authToken', token);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(userData);
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Login failed');
     }
   };
-// logout function
+
+  // logout function
   const logout = () => {
-    localStorage.removeItem('adminToken');
+    localStorage.removeItem('authToken');
     delete axios.defaults.headers.common['Authorization'];
     setUser(null);
   };
-// value object
+
+  // value object
   const value = {
     user,
     isAuthenticated: !!user,
+    isAdmin: user?.role === 'ADMIN',
     login,
     logout,
     loading

@@ -8,11 +8,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: '📊' },
-    { name: 'Orders', href: '/orders', icon: '📦' },
-    { name: 'Products', href: '/products', icon: '🛍️' },
-    { name: 'Users', href: '/users', icon: '👥' },
-    { name: 'Analytics', href: '/analytics', icon: '📈' },
+    { name: 'Dashboard', href: '/admin', icon: '📊' },
+    { name: 'Orders', href: '/admin/orders', icon: '📦' },
+    { name: 'Products', href: '/admin/products', icon: '🛍️' },
+    { name: 'Users', href: '/admin/users', icon: '👥' },
+    { name: 'Analytics', href: '/admin/analytics', icon: '📈' },
   ];
 
   const handleLogout = () => {
