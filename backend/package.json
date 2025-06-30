@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
+    "build": "npm install && npx prisma generate",
     "dev": "nodemon src/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -37,5 +38,8 @@
     "nodemon": "^2.0.22",
     "prisma": "^5.0.0",
     "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }

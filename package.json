@@ -1,0 +1,16 @@
+{
+  "name": "ecommerce-mvp",
+  "version": "1.0.0",
+  "description": "Full-stack ecommerce MVP with React frontend and Node.js backend",
+  "scripts": {
+    "build": "echo 'Build completed'",
+    "start": "echo 'Please deploy backend and frontend separately'",
+    "dev": "echo 'Please run backend and frontend separately'"
+  },
+  "keywords": ["ecommerce", "react", "nodejs", "postgresql", "fullstack"],
+  "author": "Your Name",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+} 
