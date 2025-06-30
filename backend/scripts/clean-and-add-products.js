@@ -2,12 +2,22 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-const addSampleData = async () => {
+const cleanAndAddProducts = async () => {
   try {
-    console.log('🔧 Adding sample data...');
+    console.log('🧹 Cleaning database and adding fresh products...');
     
     await prisma.$connect();
     console.log('✅ Connected to database');
+    
+    // Delete cart items first (due to foreign key constraints)
+    console.log('🗑️  Deleting existing cart items...');
+    await prisma.cartItem.deleteMany({});
+    console.log('✅ All cart items deleted');
+    
+    // Delete all existing products
+    console.log('🗑️  Deleting existing products...');
+    await prisma.product.deleteMany({});
+    console.log('✅ All products deleted');
     
     // Create categories
     const electronics = await prisma.category.upsert({
@@ -151,7 +161,7 @@ const addSampleData = async () => {
         categoryId: sports.id,
         images: [
           'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop',
-          'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop'
+          'https://images.unsplash.com/photo-1571019613454-1cb2f99b8d8b?w=400&h=400&fit=crop'
         ]
       },
       {
@@ -179,33 +189,24 @@ const addSampleData = async () => {
     ];
     
     for (const productData of products) {
-      try {
-        await prisma.product.create({
-          data: productData
-        });
-        console.log(`✅ Added product: ${productData.name}`);
-      } catch (error) {
-        if (error.code === 'P2002') {
-          // Duplicate product, skip
-          console.log(`⚠️  Product '${productData.name}' already exists, skipping.`);
-        } else {
-          throw error;
-        }
-      }
+      await prisma.product.create({
+        data: productData
+      });
+      console.log(`✅ Added product: ${productData.name}`);
     }
     
     console.log('✅ Sample products created');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('📦 Added 12 sample products with real images');
+    console.log('📦 Added 12 products with real images');
     console.log('📂 Added 5 categories');
     console.log('🖼️  All products now have high-quality images');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     
   } catch (error) {
-    console.error('❌ Error adding sample data:', error);
+    console.error('❌ Error cleaning and adding products:', error);
   } finally {
     await prisma.$disconnect();
   }
 };
 
-addSampleData(); 
+cleanAndAddProducts(); 

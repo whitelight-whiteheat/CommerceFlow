@@ -88,7 +88,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; 2024 E-Commerce Store. All rights reserved.</p>
+          <p>&copy; 2025 E-Commerce Store. All rights reserved.</p>
         </div>
       </footer>
     </div>

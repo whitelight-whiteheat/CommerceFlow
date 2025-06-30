@@ -1,102 +1,126 @@
 import prisma from '../config/database.js';
 import { validationResult } from 'express-validator';
+import { cacheUtils, queryUtils, monitoringUtils, responseUtils } from '../utils/performanceUtils.js';
 
 // Create a new product
-const createProduct = async (req, res) => { // async function to handle the creation of a new product
+const createProduct = async (req, res) => {
+    const startTime = Date.now();
     try {
-        const errors = validationResult(req); // validate the request body
+        const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() }); // if there are validation errors, return a 400 status and the errors
-            }
+            return res.status(400).json({ errors: errors.array() });
+        }
 
-            const { name, description, price, stock, categoryId, images} = req.body; // extract the product data from the request body
+        const { name, description, price, stock, categoryId, images } = req.body;
 
-            const category = await prisma.category.findUnique({ // check if the category exists in the database using the categoryId from the request body
-                where: { id: categoryId}
-            });
+        // Check if category exists
+        const category = await prisma.category.findUnique({
+            where: { id: categoryId }
+        });
 
-            if (!category) {
-                return res.status(404).json({ message: 'Category not found' }); // if the category does not exist, return a 404 status and a message
-            }
+        if (!category) {
+            return res.status(404).json({ message: 'Category not found' });
+        }
 
-            const product = await prisma.product.create({ // create the product in the database using the prisma client
-                data: {
-                    name,
-                    description,
-                    price: parseFloat(price),
-                    stock: parseInt(stock),
-                    categoryId,
-                    images: images || []
-                },
-            });
+        const product = await prisma.product.create({
+            data: {
+                name,
+                description,
+                price: parseFloat(price),
+                stock: parseInt(stock),
+                categoryId,
+                images: images || []
+            },
+        });
 
-            res.status(201).json(product); // return the created product in the response body with a 201 status code
+        // Clear cache for products list
+        cacheUtils.clear();
+
+        responseUtils.addPerformanceHeaders(res, startTime);
+        res.status(201).json(product);
     } catch (error) {
-        console.error('Create product error:', error); // log the error if it occurs
-        res.status(500).json({ message: 'Error creating product', error: error.message }); // return a 500 status and an error message if it occurs
+        console.error('Create product error:', error);
+        res.status(500).json({ message: 'Error creating product', error: error.message });
     }
 };
 
 // Get all products with pagination and filtering
 const getProducts = async (req, res) => {
+    const startTime = Date.now();
     try {
-        const page = parseInt(req.query.page) || 1; // default page 1
-        const limit = parseInt(req.query.limit) || 10; // 10 products per page
-        const categoryId = req.query.categoryId; // filter by category
-        const search = req.query.search; // search by name
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const categoryId = req.query.categoryId;
+        const search = req.query.search;
+        const sortBy = req.query.sortBy || 'createdAt';
+        const sortOrder = req.query.sortOrder || 'desc';
 
-        const skip = (page - 1) * limit; // helps the database know where to start when fetching products for the current page.
-
-        // Build where clause
-        const where = {}; // initialize an empty object to store the filter criteria
-        if (categoryId) {
-            where.categoryId = categoryId; // if a categoryId is provided, add it to the filter criteria
-        }
-        if (search) {
-            where.OR = [ // if a search query is provided, add it to the filter criteria
-                { description: { contains: search, mode: 'insensitive' } }, // search by description
-                { name: { contains: search, mode: 'insensitive' } }, // search by name
-            ];
+        // Create cache key based on query parameters
+        const cacheKey = `products:${page}:${limit}:${categoryId}:${search}:${sortBy}:${sortOrder}`;
+        
+        // Try to get from cache first
+        const cachedResult = cacheUtils.get(cacheKey);
+        if (cachedResult) {
+            responseUtils.addPerformanceHeaders(res, startTime);
+            return res.json(cachedResult);
         }
 
-        //Get total count for pagination
-        const total = await prisma.product.count({ where });
+        // Build query with optimization
+        let query = {
+            include: queryUtils.optimizeIncludes({ category: true }, 'list')
+        };
 
-        //Get products with pagination and filter
-        const products = await prisma.product.findMany({ // find all products that match the filter criteria
-            where,
-            include: {
-                category: true, // include the category data in the response
-            },
-            skip,
-            take: limit,
-            orderBy: {
-                createdAt: 'desc' // order the products by the createdAt field in descending order
-            }
-        });
+        // Add filtering
+        const filters = {};
+        if (categoryId) filters.categoryId = categoryId;
+        if (search) filters.search = search;
+        
+        query = queryUtils.addFiltering(query, filters);
+        query = queryUtils.addPagination(query, page, limit);
+        query = queryUtils.addSorting(query, sortBy, sortOrder);
 
-        //Return response
-        res.json({ // return the products and the pagination information in the response body
-            products,
+        // Execute queries
+        const [total, products] = await Promise.all([
+            prisma.product.count({ where: query.where }),
+            prisma.product.findMany(query)
+        ]);
+
+        const result = {
+            products: responseUtils.compressResponse(products),
             pagination: {
                 total,
                 page,
                 limit,
-                pages: Math.ceil(total / limit) // calculate the total number of pages based on the total number of products and the limit
+                pages: Math.ceil(total / limit)
             }
-        });
-    } catch (error) { // handle any errors that occur during the process
-        console.error('Get all products error:', error); // log the error if it occurs
-        res.status(500).json({ message: 'Error fetching products', error: error.message }); // return a 500 status and an error message if it occurs
+        };
+
+        // Cache the result
+        cacheUtils.set(cacheKey, result);
+
+        responseUtils.addPerformanceHeaders(res, startTime);
+        res.json(result);
+    } catch (error) {
+        console.error('Get all products error:', error);
+        res.status(500).json({ message: 'Error fetching products', error: error.message });
     }
 };
 
-const getProduct= async (req, res) => { // async function to handle the retrieval of a product by its ID
+const getProduct = async (req, res) => {
+    const startTime = Date.now();
     try {
-        const { id } = req.params; // extract the product ID from the request parameters
+        const { id } = req.params;
+
+        // Try to get from cache first
+        const cacheKey = `product:${id}`;
+        const cachedProduct = cacheUtils.get(cacheKey);
+        if (cachedProduct) {
+            responseUtils.addPerformanceHeaders(res, startTime);
+            return res.json(cachedProduct);
+        }
 
         const product = await prisma.product.findUnique({
-            where: {id},
+            where: { id },
             include: {
                 category: true
             }
@@ -106,43 +130,50 @@ const getProduct= async (req, res) => { // async function to handle the retrieva
             return res.status(404).json({ message: 'Product not found' });
         }
 
+        // Cache the product
+        cacheUtils.set(cacheKey, product);
+
+        responseUtils.addPerformanceHeaders(res, startTime);
         res.json(product);
-    }   catch (error) {
+    } catch (error) {
         console.error('Get product by ID error:', error);
-        res.status(500).json({ message: 'Error fetching product'});
+        res.status(500).json({ message: 'Error fetching product' });
     }
 };
 
 // Update a product
-
 const updateProduct = async (req, res) => {
+    const startTime = Date.now();
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({errors: errors.array()})
+            return res.status(400).json({ errors: errors.array() });
         }
-        const {id} = req.params;
-        const {name, description, price, stock, categoryId, images} = req.body;
-        //Check if product exists
+        
+        const { id } = req.params;
+        const { name, description, price, stock, categoryId, images } = req.body;
+        
+        // Check if product exists
         const existingProduct = await prisma.product.findUnique({
-            where: {id}
+            where: { id }
         });
+        
         if (!existingProduct) {
-            return res.status(404).json({message: 'Product not found'})
+            return res.status(404).json({ message: 'Product not found' });
         }
 
-        //If categoryId is provided, check if it exists
+        // If categoryId is provided, check if it exists
         if (categoryId) {
             const category = await prisma.category.findUnique({
-                where: {id: categoryId}
+                where: { id: categoryId }
             });
             if (!category) {
-                return res.status(404).json({message: 'Category not found'})
+                return res.status(404).json({ message: 'Category not found' });
             }
         }
 
         const updatedProduct = await prisma.product.update({
-            where: {id},
+            where: { id },
             data: {
                 name,
                 description,
@@ -154,45 +185,67 @@ const updateProduct = async (req, res) => {
             include: {
                 category: true
             }
-            });
+        });
 
-            res.json(updatedProduct);
-        } catch (error) {
-            console.error('Update product error:', error);
-            res.status(500).json({message: 'Error updating product', error: error.message});
-        }
+        // Clear related cache
+        cacheUtils.clear();
+
+        responseUtils.addPerformanceHeaders(res, startTime);
+        res.json(updatedProduct);
+    } catch (error) {
+        console.error('Update product error:', error);
+        res.status(500).json({ message: 'Error updating product', error: error.message });
+    }
 };
 
-//Delete a product
+// Delete a product
 const deleteProduct = async (req, res) => {
+    const startTime = Date.now();
     try {
-        const {id} = req.params;
+        const { id } = req.params;
 
-        //Check if product exists
+        // Check if product exists
         const product = await prisma.product.findUnique({
-            where: {id}
+            where: { id }
         });
+        
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
 
-        //Delete product
+        // Delete product
         await prisma.product.delete({
-        where:{id}
-    });
+            where: { id }
+        });
 
-    res.json({message: 'Product deleted successfully'});
-} catch (error) {
-    console.error('Delete product error:', error);
-    res.status(500).json({message: 'Error deleting product', error: error.message});
-}
+        // Clear cache
+        cacheUtils.clear();
+
+        responseUtils.addPerformanceHeaders(res, startTime);
+        res.json({ message: 'Product deleted successfully' });
+    } catch (error) {
+        console.error('Delete product error:', error);
+        res.status(500).json({ message: 'Error deleting product', error: error.message });
+    }
 };
 
-//Export the controller functions
+// Get performance metrics
+const getPerformanceMetrics = async (req, res) => {
+    try {
+        const metrics = monitoringUtils.getMetrics();
+        res.json(metrics);
+    } catch (error) {
+        console.error('Get performance metrics error:', error);
+        res.status(500).json({ message: 'Error fetching performance metrics' });
+    }
+};
+
+// Export the controller functions
 module.exports = {
     createProduct,
     getProducts,
     getProduct,
     updateProduct,
     deleteProduct,
+    getPerformanceMetrics
 };

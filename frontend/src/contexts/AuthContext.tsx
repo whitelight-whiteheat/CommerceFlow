@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiClient, getErrorMessage } from '../utils/errorHandler';
 
 // interface for User
 interface User {
@@ -39,16 +39,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const token = localStorage.getItem('authToken');
     if (token) {
       // set default authorization header
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
       // verify token by getting user profile
-      axios.get('http://localhost:3001/api/users/profile')
+      apiClient.get('/users/profile')
         .then(response => {
           setUser(response.data);
         })
         .catch(() => {
           localStorage.removeItem('authToken');
-          delete axios.defaults.headers.common['Authorization'];
+          delete apiClient.defaults.headers.common['Authorization'];
         })
         .finally(() => {
           setLoading(false);
@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // login function
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post('http://localhost:3001/api/users/login', {
+      const response = await apiClient.post('/users/login', {
         email,
         password
       });
@@ -71,17 +71,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // set token and user data in local storage
       localStorage.setItem('authToken', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(userData);
-    } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Login failed');
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
     }
   };
 
   // logout function
   const logout = () => {
     localStorage.removeItem('authToken');
-    delete axios.defaults.headers.common['Authorization'];
+    delete apiClient.defaults.headers.common['Authorization'];
     setUser(null);
   };
 

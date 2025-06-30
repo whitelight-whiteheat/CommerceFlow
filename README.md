@@ -1,17 +1,52 @@
-# Ecommerce Platform
+# 🛒 Ecommerce MVP - Full-Stack Ecommerce Platform
 
-A full-stack ecommerce platform built with Node.js, Express, React, and TypeScript.
+A production-ready, full-stack ecommerce platform built with modern technologies, featuring comprehensive security, performance optimization, and deployment automation.
 
-## 🚀 Features
+## 🚀 Live Demo
 
-- **User Management**: Registration, authentication, and profile management
-- **Product Management**: CRUD operations for products with categories
-- **Shopping Cart**: Add, remove, and manage cart items
-- **Order Management**: Complete order lifecycle from creation to fulfillment
-- **Admin Dashboard**: Comprehensive admin interface for managing the platform
-- **Security**: JWT authentication, input validation, and security middleware
-- **Testing**: Comprehensive test suite with Jest
-- **Database**: PostgreSQL with Prisma ORM
+- **Frontend**: [http://localhost:3000](http://localhost:3000)
+- **Backend API**: [http://localhost:3001](http://localhost:3001)
+- **API Documentation**: [http://localhost:3001/api-docs](http://localhost:3001/api-docs)
+- **Health Check**: [http://localhost:3001/health](http://localhost:3001/health)
+
+## ✨ Key Features
+
+### 🛍️ Customer Features
+- **Secure Authentication**: JWT-based user registration and login
+- **Product Catalog**: Browse products with search, filtering, and pagination
+- **Shopping Cart**: Add/remove items, quantity management, persistent cart
+- **Order Management**: Complete checkout process with order history
+- **Responsive Design**: Mobile-friendly interface
+
+### 👨‍💼 Admin Features
+- **Product Management**: CRUD operations for products and categories
+- **Order Management**: View and update order statuses
+- **User Management**: Customer account administration
+- **Analytics Dashboard**: Sales metrics and performance monitoring
+- **Performance Metrics**: Real-time system performance tracking
+
+## 🛠️ Tech Stack
+
+### Backend
+- **Node.js & Express**: RESTful API with middleware architecture
+- **PostgreSQL**: Relational database with Prisma ORM
+- **JWT Authentication**: Secure token-based authentication
+- **Redis**: Caching layer for performance optimization
+- **Docker**: Containerized deployment
+
+### Frontend
+- **React 19**: Modern UI with TypeScript
+- **React Router**: Client-side routing
+- **Context API**: State management
+- **Axios**: HTTP client with interceptors
+- **Responsive CSS**: Mobile-first design
+
+### DevOps & Security
+- **Docker Compose**: Multi-service orchestration
+- **GitHub Actions**: CI/CD pipeline
+- **Security Middleware**: Rate limiting, CORS, XSS protection
+- **Error Handling**: Comprehensive error management
+- **Performance Monitoring**: Real-time metrics and caching
 
 ## 🏗️ Architecture
 
@@ -19,54 +54,54 @@ A full-stack ecommerce platform built with Node.js, Express, React, and TypeScri
 ecommerce-platform/
 ├── backend/                 # Node.js/Express API
 │   ├── src/
-│   │   ├── controllers/     # Route handlers
-│   │   ├── middleware/      # Authentication, validation, etc.
+│   │   ├── controllers/     # Route handlers with caching
+│   │   ├── middleware/      # Auth, validation, security
 │   │   ├── routes/          # API routes
 │   │   ├── services/        # Business logic
+│   │   ├── utils/           # Performance & security utilities
 │   │   └── config/          # Database and app configuration
 │   ├── prisma/              # Database schema and migrations
+│   ├── scripts/             # Deployment and utility scripts
 │   └── tests/               # Backend tests
 └── frontend/                # React/TypeScript application
     ├── src/
     │   ├── components/      # React components
     │   ├── contexts/        # React contexts
+    │   ├── utils/           # Error handling and API utilities
     │   └── services/        # API service functions
     └── public/              # Static assets
 ```
 
-## 🛠️ Tech Stack
-
-### Backend
-- **Node.js** - Runtime environment
-- **Express.js** - Web framework
-- **PostgreSQL** - Database
-- **Prisma** - ORM
-- **JWT** - Authentication
-- **Jest** - Testing framework
-- **Docker** - Containerization
-
-### Frontend
-- **React** - UI library
-- **TypeScript** - Type safety
-- **React Router** - Client-side routing
-- **Axios** - HTTP client
-
 ## 📋 Prerequisites
 
-- Node.js (v16 or higher)
+- Node.js (v18 or higher)
 - PostgreSQL
+- Docker & Docker Compose
 - npm or yarn
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/whitelight-whiteheat/EcommerceMVP.git
+git clone https://github.com/your-username/EcommerceMVP.git
 cd EcommerceMVP
 ```
 
-### 2. Backend Setup
+### 2. Start with Docker (Recommended)
+```bash
+# Start all services
+cd backend
+docker-compose up -d
 
+# Start frontend
+cd ../frontend
+npm install
+npm start
+```
+
+### 3. Manual Setup
+
+#### Backend Setup
 ```bash
 cd backend
 
@@ -74,8 +109,8 @@ cd backend
 npm install
 
 # Set up environment variables
-cp .env.example .env
-# Edit .env with your database credentials
+cp env.production.example .env
+# Edit .env with your configuration
 
 # Set up database
 npx prisma migrate dev
@@ -85,8 +120,7 @@ npx prisma generate
 npm run dev
 ```
 
-### 3. Frontend Setup
-
+#### Frontend Setup
 ```bash
 cd frontend
 
@@ -96,6 +130,17 @@ npm install
 # Start the development server
 npm start
 ```
+
+## 🔐 Default Credentials
+
+### Admin Access
+- **Email**: admin@example.com
+- **Password**: admin123
+- **URL**: http://localhost:3000/admin
+
+### Customer Access
+- **URL**: http://localhost:3000
+- **Registration**: Available for new customers
 
 ## 🧪 Testing
 
@@ -111,19 +156,30 @@ cd frontend
 npm test
 ```
 
+### Security Audit
+```bash
+cd backend
+npm audit
+
+cd ../frontend
+npm audit
+```
+
 ## 📦 API Endpoints
 
 ### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `GET /api/auth/profile` - Get user profile
+- `POST /api/users/register` - User registration
+- `POST /api/users/login` - User login
+- `GET /api/users/profile` - Get user profile
+- `PUT /api/users/profile` - Update user profile
 
 ### Products
-- `GET /api/products` - Get all products
+- `GET /api/products` - Get all products (with caching)
 - `GET /api/products/:id` - Get product by ID
 - `POST /api/products` - Create product (Admin)
 - `PUT /api/products/:id` - Update product (Admin)
 - `DELETE /api/products/:id` - Delete product (Admin)
+- `GET /api/products/metrics/performance` - Performance metrics (Admin)
 
 ### Categories
 - `GET /api/categories` - Get all categories
@@ -131,9 +187,10 @@ npm test
 
 ### Cart
 - `GET /api/cart` - Get user cart
-- `POST /api/cart/add` - Add item to cart
-- `PUT /api/cart/update` - Update cart item
-- `DELETE /api/cart/remove/:id` - Remove item from cart
+- `POST /api/cart/items` - Add item to cart
+- `PUT /api/cart/items/:id` - Update cart item
+- `DELETE /api/cart/items/:id` - Remove item from cart
+- `DELETE /api/cart` - Clear cart
 
 ### Orders
 - `GET /api/orders` - Get user orders
@@ -144,42 +201,114 @@ npm test
 
 ### Backend (.env)
 ```env
+# Database
 DATABASE_URL="postgresql://username:password@localhost:5432/ecommerce"
+
+# JWT
 JWT_SECRET="your-jwt-secret"
-PORT=5000
-NODE_ENV=development
+JWT_EXPIRES_IN="24h"
+JWT_ISSUER="ecommerce-api"
+JWT_AUDIENCE="ecommerce-users"
+
+# Server
+NODE_ENV="development"
+PORT=3001
+FRONTEND_URL="http://localhost:3000"
+
+# Security
+CORS_ORIGIN="http://localhost:3000"
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX_REQUESTS=100
+
+# Performance
+CACHE_TTL=300000
+ENABLE_METRICS=true
 ```
 
 ## 🐳 Docker
 
-### Using Docker Compose
+### Development
 ```bash
 docker-compose up -d
 ```
 
-This will start:
-- PostgreSQL database
-- Backend API server
-- Frontend development server
+### Production
+```bash
+# Set environment variables
+export POSTGRES_PASSWORD="your_secure_password"
+export JWT_SECRET="your_jwt_secret"
+export FRONTEND_URL="https://your-domain.com"
+export REDIS_PASSWORD="your_redis_password"
 
-## 📊 Database Schema
-
-The application uses PostgreSQL with the following main entities:
-- Users
-- Products
-- Categories
-- Cart Items
-- Orders
-- Order Items
+# Deploy
+cd backend
+chmod +x scripts/deploy.sh
+./scripts/deploy.sh
+```
 
 ## 🔒 Security Features
 
-- JWT-based authentication
-- Password hashing with bcrypt
-- Input validation and sanitization
-- CORS configuration
-- Rate limiting
-- Security headers
+- **JWT Authentication**: Secure token-based authentication
+- **Password Hashing**: Bcrypt with strength requirements
+- **Input Validation**: Comprehensive validation with SQL injection protection
+- **Rate Limiting**: API protection against abuse
+- **CORS Protection**: Secure cross-origin request handling
+- **XSS Protection**: Content Security Policy headers
+- **SQL Injection Prevention**: Parameterized queries and input sanitization
+
+## ⚡ Performance Features
+
+- **Caching System**: In-memory caching with TTL
+- **Query Optimization**: Efficient database queries with pagination
+- **Response Compression**: Optimized API responses
+- **Database Indexing**: Performance-focused schema design
+- **Resource Management**: Docker resource limits and health checks
+- **Performance Monitoring**: Real-time metrics and caching
+
+## 🚀 Deployment
+
+### Production Deployment
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed production deployment instructions.
+
+### CI/CD Pipeline
+- Automated testing on pull requests
+- Security scanning with Snyk
+- Docker image building and pushing
+- Automated deployment to production
+
+## 📊 Monitoring
+
+### Health Checks
+- Application: `GET /health`
+- Database: Automatic Docker health checks
+- Redis: Automatic Docker health checks
+
+### Performance Metrics
+- API response times
+- Cache hit rates
+- Database query performance
+- System resource usage
+
+## 🔧 Development
+
+### Code Quality
+- **TypeScript**: Full type safety
+- **ESLint**: Code quality enforcement
+- **Prettier**: Code formatting
+- **Husky**: Git hooks for quality checks
+
+### Testing Strategy
+- **Unit Tests**: Jest for backend, React Testing Library for frontend
+- **Integration Tests**: API endpoint testing
+- **Security Tests**: Vulnerability scanning
+- **Performance Tests**: Load testing capabilities
+
+## 📚 Documentation
+
+- [API Documentation](http://localhost:3001/api-docs) - Swagger/OpenAPI docs
+- [Deployment Guide](DEPLOYMENT_GUIDE.md) - Production deployment
+- [Portfolio Summary](PORTFOLIO_SUMMARY.md) - Project overview
+- [Development Timeline](DEVELOPMENT_TIMELINE.md) - Project phases
 
 ## 🤝 Contributing
 
@@ -195,17 +324,28 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🆘 Support
 
-If you encounter any issues or have questions, please open an issue on GitHub.
+If you encounter any issues or have questions:
 
-## 🗺️ Roadmap
+1. Check the [documentation](DEPLOYMENT_GUIDE.md)
+2. Review the [troubleshooting guide](DEPLOYMENT_GUIDE.md#troubleshooting)
+3. Open an issue on GitHub
+
+## 🏆 Project Status
+
+- ✅ **Phase 1**: Core Foundation (Completed)
+- ✅ **Phase 2**: Core Features (Completed)
+- ✅ **Phase 3**: Business Logic (Completed)
+- ✅ **Phase 4**: Polish & Launch (Completed)
+- ✅ **Phase 5**: Resume Enhancement (Completed)
+
+## 🎯 Next Steps
 
 - [ ] Payment integration (Stripe/PayPal)
 - [ ] Email notifications
 - [ ] Product reviews and ratings
-- [ ] Advanced search and filtering
-- [ ] Mobile app
-- [ ] Multi-language support
-- [ ] Analytics dashboard
-- [ ] Inventory management
-- [ ] Shipping integration
-- [ ] Customer support system
+- [ ] Advanced analytics
+- [ ] Mobile app (React Native)
+
+---
+
+**Built with ❤️ using modern web technologies**
