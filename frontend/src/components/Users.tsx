@@ -28,7 +28,7 @@ const Users: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage, searchTerm, roleFilter]);
+  }, [currentPage, searchTerm, roleFilter, fetchUsers]);
 
   const fetchUsers = async () => {
     try {

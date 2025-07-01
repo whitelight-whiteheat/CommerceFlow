@@ -25,7 +25,7 @@ const Analytics: React.FC = () => {
 
   useEffect(() => {
     fetchAnalytics();
-  }, [period]);
+  }, [period, fetchAnalytics]);
 
   const fetchAnalytics = async () => {
     try {

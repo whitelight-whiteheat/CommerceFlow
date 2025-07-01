@@ -50,7 +50,7 @@ const Orders: React.FC = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, [currentPage, statusFilter, searchTerm]);
+  }, [currentPage, statusFilter, searchTerm, fetchOrders]);
 
   const fetchOrders = async () => {
     try {
