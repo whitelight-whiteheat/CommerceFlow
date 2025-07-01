@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import { apiClient } from './api';
 
 // Error types
 export interface ApiError {
@@ -58,9 +59,6 @@ export const handleApiError = (error: unknown): ApiError => {
     statusCode: 500
   };
 };
-
-// Import the centralized apiClient
-import { apiClient } from './api';
 
 // Re-export for backward compatibility
 export { apiClient };
