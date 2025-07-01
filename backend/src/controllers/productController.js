@@ -1,6 +1,6 @@
-import prisma from '../config/database.js';
-import { validationResult } from 'express-validator';
-import { cacheUtils, queryUtils, monitoringUtils, responseUtils } from '../utils/performanceUtils.js';
+const prisma = require('../config/database');
+const { validationResult } = require('express-validator');
+const { cacheUtils, queryUtils, monitoringUtils, responseUtils } = require('../utils/performanceUtils');
 
 // Create a new product
 const createProduct = async (req, res) => {
