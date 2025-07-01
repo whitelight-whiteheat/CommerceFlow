@@ -1,3 +1,4 @@
+// Product Controller - CommonJS module system
 const prisma = require('../config/database');
 const { validationResult } = require('express-validator');
 const { cacheUtils, queryUtils, monitoringUtils, responseUtils } = require('../utils/performanceUtils');
