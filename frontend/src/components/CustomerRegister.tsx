@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { apiClient } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
 import './CustomerLogin.css';
 
@@ -46,7 +46,7 @@ const CustomerRegister: React.FC<CustomerRegisterProps> = ({ onSwitchToLogin }) 
 
     try {
       // Register the user
-      await axios.post('http://localhost:3001/api/users/register', {
+      await apiClient.post('/api/users/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password

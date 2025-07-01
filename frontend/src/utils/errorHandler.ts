@@ -59,14 +59,11 @@ export const handleApiError = (error: unknown): ApiError => {
   };
 };
 
-// Enhanced axios instance with error handling
-export const apiClient = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001/api',
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// Import the centralized apiClient
+import { apiClient } from './api';
+
+// Re-export for backward compatibility
+export { apiClient };
 
 // Request interceptor for logging
 apiClient.interceptors.request.use(

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import axios from 'axios';
+import { apiClient } from '../utils/api';
 import { useAuth } from './AuthContext';
 
 interface CartItem {
@@ -63,7 +63,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3001/api/cart');
+      const response = await apiClient.get('/api/cart');
       setCart(response.data);
     } catch (error) {
       console.error('Failed to fetch cart:', error);
@@ -84,7 +84,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
     try {
       setLoading(true);
-      await axios.post('http://localhost:3001/api/cart/items', {
+      await apiClient.post('/api/cart/items', {
         productId,
         quantity
       });
@@ -103,7 +103,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
     try {
       setLoading(true);
-      await axios.put(`http://localhost:3001/api/cart/items/${itemId}`, {
+      await apiClient.put(`/api/cart/items/${itemId}`, {
         quantity
       });
       await refreshCart();
@@ -121,7 +121,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
     try {
       setLoading(true);
-      await axios.delete(`http://localhost:3001/api/cart/items/${itemId}`);
+      await apiClient.delete(`/api/cart/items/${itemId}`);
       await refreshCart();
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to remove item from cart');
@@ -137,7 +137,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
     try {
       setLoading(true);
-      await axios.delete('http://localhost:3001/api/cart');
+      await apiClient.delete('/api/cart');
       await refreshCart();
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to clear cart');

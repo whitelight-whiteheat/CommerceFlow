@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiClient } from '../utils/api';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import './ProductCatalog.css';
@@ -41,7 +41,7 @@ const ProductCatalog: React.FC = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3001/api/products');
+      const response = await apiClient.get('/api/products');
       // The API returns {products: [], pagination: {}} format
       setProducts(response.data.products || []);
     } catch (error) {
@@ -54,7 +54,7 @@ const ProductCatalog: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/categories');
+      const response = await apiClient.get('/api/categories');
       setCategories(response.data);
     } catch (error) {
       console.error('Failed to fetch categories:', error);
