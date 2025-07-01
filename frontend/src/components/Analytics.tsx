@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 interface AnalyticsData {
   totalSales: number;
@@ -23,11 +23,7 @@ const Analytics: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState('30');
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, [period, fetchAnalytics]);
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       const token = localStorage.getItem('authToken');
       const response = await fetch(`http://localhost:3001/api/admin/analytics?period=${period}`, {
@@ -48,7 +44,11 @@ const Analytics: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [period]);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [fetchAnalytics]);
 
   if (loading) {
     return (
