@@ -63,7 +63,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
     try {
       setLoading(true);
-      const response = await apiClient.get('/api/cart');
+      const response = await apiClient.get('/cart');
       setCart(response.data);
     } catch (error) {
       console.error('Failed to fetch cart:', error);
@@ -84,7 +84,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
     try {
       setLoading(true);
-      await apiClient.post('/api/cart/items', {
+      await apiClient.post('/cart/items', {
         productId,
         quantity
       });
@@ -103,7 +103,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
     try {
       setLoading(true);
-      await apiClient.put(`/api/cart/items/${itemId}`, {
+      await apiClient.put(`/cart/items/${itemId}`, {
         quantity
       });
       await refreshCart();
@@ -121,7 +121,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
     try {
       setLoading(true);
-      await apiClient.delete(`/api/cart/items/${itemId}`);
+      await apiClient.delete(`/cart/items/${itemId}`);
       await refreshCart();
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to remove item from cart');
@@ -137,7 +137,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
     try {
       setLoading(true);
-      await apiClient.delete('/api/cart');
+      await apiClient.delete('/cart');
       await refreshCart();
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to clear cart');

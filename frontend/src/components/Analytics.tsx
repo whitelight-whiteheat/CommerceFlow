@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { apiClient } from '../utils/api';
 
 interface AnalyticsData {
   totalSales: number;
@@ -26,12 +27,7 @@ const Analytics: React.FC = () => {
   const fetchAnalytics = useCallback(async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`http://localhost:3001/api/admin/analytics?period=${period}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await apiClient.get(`/admin/analytics?period=${period}`);
 
       if (response.ok) {
         const data = await response.json();

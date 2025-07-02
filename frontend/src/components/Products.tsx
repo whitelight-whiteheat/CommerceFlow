@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiClient } from '../utils/api';
 
 interface Product {
   id: string;
@@ -52,12 +53,7 @@ const Products: React.FC = () => {
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:3001/api/admin/products', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await apiClient.get('/admin/products');
 
       if (response.ok) {
         const data = await response.json();
@@ -75,12 +71,7 @@ const Products: React.FC = () => {
   const fetchCategories = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:3001/api/admin/categories', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await apiClient.get('/admin/categories');
 
       if (response.ok) {
         const data = await response.json();
@@ -97,8 +88,7 @@ const Products: React.FC = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:3001/api/products', {
-        method: 'POST',
+      const response = await apiClient.post('/products', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -133,8 +123,7 @@ const Products: React.FC = () => {
 
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`http://localhost:3001/api/products/${editingProduct.id}`, {
-        method: 'PUT',
+      const response = await apiClient.put(`/products/${editingProduct.id}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -169,13 +158,7 @@ const Products: React.FC = () => {
 
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`http://localhost:3001/api/products/${productId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await apiClient.delete(`/products/${productId}`);
 
       if (response.ok) {
         fetchProducts();

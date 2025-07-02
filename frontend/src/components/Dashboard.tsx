@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiClient } from '../utils/api';
 
 interface DashboardStats {
   overview: {
@@ -60,13 +61,7 @@ const Dashboard: React.FC = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:3001/api/admin/dashboard', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await apiClient.get('/admin/dashboard');
 
       if (response.ok) {
         const data = await response.json();

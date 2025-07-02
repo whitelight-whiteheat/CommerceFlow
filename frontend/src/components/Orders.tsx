@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { apiClient } from '../utils/api';
 
 interface Order {
   id: string;
@@ -59,12 +60,7 @@ const Orders: React.FC = () => {
       if (statusFilter) params.append('status', statusFilter);
       if (searchTerm) params.append('search', searchTerm);
 
-      const response = await fetch(`http://localhost:3001/api/admin/orders?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await apiClient.get(`/admin/orders?${params}`);
 
       if (response.ok) {
         const data: OrdersResponse = await response.json();
@@ -87,13 +83,11 @@ const Orders: React.FC = () => {
   const updateOrderStatus = async (orderId: string, status: string) => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`http://localhost:3001/api/orders/${orderId}/status`, {
-        method: 'PATCH',
+      const response = await apiClient.put(`/orders/${orderId}/status`, { status }, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status }),
       });
 
       if (response.ok) {

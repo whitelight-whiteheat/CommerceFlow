@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { apiClient } from '../utils/api';
 
 interface User {
   id: string;
@@ -37,12 +38,7 @@ const Users: React.FC = () => {
       if (searchTerm) params.append('search', searchTerm);
       if (roleFilter) params.append('role', roleFilter);
 
-      const response = await fetch(`http://localhost:3001/api/admin/users?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await apiClient.get(`/admin/users?${params}`);
 
       if (response.ok) {
         const data: UsersResponse = await response.json();

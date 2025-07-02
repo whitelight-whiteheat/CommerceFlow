@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { apiClient } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
 import './CustomerDashboard.css';
 
@@ -46,7 +46,7 @@ const CustomerDashboard: React.FC = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3001/api/users/orders');
+      const response = await apiClient.get('/users/orders');
       setOrders(response.data.orders || []);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
@@ -57,7 +57,7 @@ const CustomerDashboard: React.FC = () => {
 
   const handleProfileUpdate = async () => {
     try {
-      await axios.put('http://localhost:3001/api/users/profile', profileData);
+      await apiClient.put('/users/profile', profileData);
       // Update the user context with new data
       window.location.reload(); // Simple refresh to update context
     } catch (error: any) {
