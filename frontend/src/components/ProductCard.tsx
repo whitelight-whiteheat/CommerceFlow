@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 
 interface Product {
