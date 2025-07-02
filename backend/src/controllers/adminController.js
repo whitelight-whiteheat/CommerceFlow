@@ -4,6 +4,13 @@ const prisma = new PrismaClient();
 // Get dashboard overview statistics
 const getDashboardStats = async (req, res) => {
   try {
+    // Debug: Log user information
+    console.log('Dashboard request - User:', {
+      id: req.user.id,
+      email: req.user.email,
+      role: req.user.role
+    });
+
     // Get total counts
     const totalUsers = await prisma.user.count();
     const totalProducts = await prisma.product.count();
