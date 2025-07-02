@@ -34,12 +34,14 @@ class AuthorizationError extends AppError {
   }
 }
 
+// Database error
 class DatabaseError extends AppError {
   constructor(message = 'Database operation failed') {
     super(message, 500);
   }
 }
 
+// Conflict error
 class ConflictError extends AppError {
   constructor(message = 'Resource conflict') {
     super(message, 409);
@@ -72,6 +74,8 @@ const errorHandler = (err, req, res, next) => {
 
   // Log all errors
   logError(err, req);
+  // Log the full error object for debugging
+  console.error('FULL ERROR OBJECT:', err);
 
   // Development error response
   if (process.env.NODE_ENV === 'development') {
