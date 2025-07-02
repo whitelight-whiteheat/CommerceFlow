@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import ErrorBoundary from './components/ErrorBoundary';
+import ToastContainer from './components/ToastContainer';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Users from './components/Users';
@@ -93,6 +94,7 @@ const App: React.FC = () => {
         <AuthProvider>
           <CartProvider>
             <AppContent />
+            <ToastContainer />
           </CartProvider>
         </AuthProvider>
       </Router>

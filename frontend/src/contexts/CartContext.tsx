@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { apiClient } from '../utils/api';
 import { useAuth } from './AuthContext';
+import { toastManager } from '../utils/toast';
 
 interface CartItem {
   id: string;
@@ -79,6 +80,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const addToCart = async (productId: string, quantity: number) => {
     if (!isAuthenticated) {
+      toastManager.error('Please login to add items to cart');
       throw new Error('Please login to add items to cart');
     }
 
@@ -89,8 +91,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         quantity
       });
       await refreshCart();
+      toastManager.success('Item added to cart successfully');
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to add item to cart');
+      const message = error.response?.data?.message || 'Failed to add item to cart';
+      toastManager.error(message);
+      throw new Error(message);
     } finally {
       setLoading(false);
     }
@@ -98,6 +103,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const updateQuantity = async (itemId: string, quantity: number) => {
     if (!isAuthenticated) {
+      toastManager.error('Please login to update cart');
       throw new Error('Please login to update cart');
     }
 
@@ -107,8 +113,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         quantity
       });
       await refreshCart();
+      toastManager.success('Cart updated successfully');
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to update cart item');
+      const message = error.response?.data?.message || 'Failed to update cart item';
+      toastManager.error(message);
+      throw new Error(message);
     } finally {
       setLoading(false);
     }
@@ -116,6 +125,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const removeFromCart = async (itemId: string) => {
     if (!isAuthenticated) {
+      toastManager.error('Please login to remove items from cart');
       throw new Error('Please login to remove items from cart');
     }
 
@@ -123,8 +133,11 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       setLoading(true);
       await apiClient.delete(`/cart/items/${itemId}`);
       await refreshCart();
+      toastManager.success('Item removed from cart');
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Failed to remove item from cart');
+      const message = error.response?.data?.message || 'Failed to remove item from cart';
+      toastManager.error(message);
+      throw new Error(message);
     } finally {
       setLoading(false);
     }

@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '../utils/api';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import ProductCard from './ProductCard';
+import LoadingSpinner from './LoadingSpinner';
 import './ProductCatalog.css';
 
 interface Product {
@@ -29,7 +31,6 @@ const ProductCatalog: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [addingToCart, setAddingToCart] = useState<Set<string>>(new Set());
-  const [imageIndexes, setImageIndexes] = useState<Record<string, number>>({});
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
 
@@ -61,7 +62,7 @@ const ProductCatalog: React.FC = () => {
     }
   };
 
-  const handleAddToCart = async (productId: string) => {
+  const handleAddToCart = useCallback(async (productId: string) => {
     if (!isAuthenticated) {
       alert('Please login to add items to your cart');
       return;
@@ -80,21 +81,7 @@ const ProductCatalog: React.FC = () => {
         return newSet;
       });
     }
-  };
-
-  const nextImage = (productId: string, totalImages: number) => {
-    setImageIndexes(prev => ({
-      ...prev,
-      [productId]: ((prev[productId] || 0) + 1) % totalImages
-    }));
-  };
-
-  const prevImage = (productId: string, totalImages: number) => {
-    setImageIndexes(prev => ({
-      ...prev,
-      [productId]: prev[productId] === 0 ? totalImages - 1 : (prev[productId] || 0) - 1
-    }));
-  };
+  }, [isAuthenticated, addToCart]);
 
   const filteredProducts = products.filter(product => {
     const matchesCategory = !selectedCategory || product.category.id === selectedCategory;
@@ -106,10 +93,7 @@ const ProductCatalog: React.FC = () => {
   if (loading) {
     return (
       <div className="catalog-container">
-        <div className="loading">
-          <div className="loading-spinner"></div>
-          <p>Loading products...</p>
-        </div>
+        <LoadingSpinner size="large" message="Loading products..." />
       </div>
     );
   }
@@ -152,80 +136,14 @@ const ProductCatalog: React.FC = () => {
             <p>Try adjusting your search or category filter.</p>
           </div>
         ) : (
-          filteredProducts.map(product => {
-            const currentImageIndex = imageIndexes[product.id] || 0;
-            const hasMultipleImages = product.images && product.images.length > 1;
-            
-            return (
-              <div key={product.id} className="product-card">
-                <div className="product-image">
-                  {product.images && product.images.length > 0 ? (
-                    <>
-                      <img 
-                        src={product.images[currentImageIndex]} 
-                        alt={`${product.name} ${currentImageIndex + 1}`}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = 'https://via.placeholder.com/300x300?text=Image+Not+Available';
-                        }}
-                      />
-                      {hasMultipleImages && (
-                        <>
-                          <button 
-                            className="image-nav-btn prev-btn"
-                            onClick={() => prevImage(product.id, product.images.length)}
-                            aria-label="Previous image"
-                          >
-                            ‹
-                          </button>
-                          <button 
-                            className="image-nav-btn next-btn"
-                            onClick={() => nextImage(product.id, product.images.length)}
-                            aria-label="Next image"
-                          >
-                            ›
-                          </button>
-                          <div className="image-indicators">
-                            {product.images.map((_, index) => (
-                              <span 
-                                key={index} 
-                                className={`indicator ${index === currentImageIndex ? 'active' : ''}`}
-                              />
-                            ))}
-                          </div>
-                        </>
-                      )}
-                    </>
-                  ) : (
-                    <div className="no-image">No Image</div>
-                  )}
-                  {product.stock === 0 && (
-                    <div className="out-of-stock">Out of Stock</div>
-                  )}
-                </div>
-                
-                <div className="product-info">
-                  <h3 className="product-name">{product.name}</h3>
-                  <p className="product-description">{product.description}</p>
-                  <div className="product-category">{product.category.name}</div>
-                  <div className="product-price">${product.price.toFixed(2)}</div>
-                  <div className="product-stock">
-                    {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
-                  </div>
-                </div>
-                
-                <div className="product-actions">
-                  <button
-                    onClick={() => handleAddToCart(product.id)}
-                    disabled={product.stock === 0 || addingToCart.has(product.id)}
-                    className="add-to-cart-btn"
-                  >
-                    {addingToCart.has(product.id) ? 'Adding...' : 'Add to Cart'}
-                  </button>
-                </div>
-              </div>
-            );
-          })
+          filteredProducts.map(product => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onAddToCart={handleAddToCart}
+              addingToCart={addingToCart.has(product.id)}
+            />
+          ))
         )}
       </div>
     </div>

@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // check if token is in local storage
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     if (token) {
       // set default authorization header
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(response.data);
         })
         .catch(() => {
-          localStorage.removeItem('authToken');
+          localStorage.removeItem('token');
           delete apiClient.defaults.headers.common['Authorization'];
         })
         .finally(() => {
@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { token, user: userData } = response.data;
       
       // set token and user data in local storage
-      localStorage.setItem('authToken', token);
+      localStorage.setItem('token', token);
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setUser(userData);
     } catch (error) {
@@ -80,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // logout function
   const logout = () => {
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('token');
     delete apiClient.defaults.headers.common['Authorization'];
     setUser(null);
   };
