@@ -46,7 +46,7 @@ const CustomerRegister: React.FC<CustomerRegisterProps> = ({ onSwitchToLogin }) 
 
     try {
       // Register the user
-      await apiClient.post('/api/users/register', {
+      await apiClient.post('/users/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password
