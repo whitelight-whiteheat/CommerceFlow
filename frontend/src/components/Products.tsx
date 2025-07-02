@@ -53,9 +53,12 @@ const Products: React.FC = () => {
   const fetchProducts = async () => {
     try {
       const response = await apiClient.get('/admin/products');
-      setProducts(response.data);
+      // Handle the response structure: { products: [], pagination: {} }
+      const productsData = response.data.products || response.data || [];
+      setProducts(Array.isArray(productsData) ? productsData : []);
     } catch (error) {
       console.error('Error fetching products:', error);
+      setProducts([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -64,9 +67,11 @@ const Products: React.FC = () => {
   const fetchCategories = async () => {
     try {
       const response = await apiClient.get('/admin/categories');
-      setCategories(response.data);
+      const categoriesData = response.data || [];
+      setCategories(Array.isArray(categoriesData) ? categoriesData : []);
     } catch (error) {
       console.error('Error fetching categories:', error);
+      setCategories([]); // Set empty array on error
     }
   };
 
@@ -207,45 +212,53 @@ const Products: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
-                <tr key={product.id}>
-                  <td style={{ fontFamily: 'monospace' }}>#{product.id.slice(0, 8)}...</td>
-                  <td>
-                    <div>
-                      <div style={{ fontWeight: '500' }}>{product.name}</div>
-                      <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                        {product.description.substring(0, 50)}...
+              {Array.isArray(products) && products.length > 0 ? (
+                products.map((product) => (
+                  <tr key={product.id}>
+                    <td style={{ fontFamily: 'monospace' }}>#{product.id.slice(0, 8)}...</td>
+                    <td>
+                      <div>
+                        <div style={{ fontWeight: '500' }}>{product.name}</div>
+                        <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                          {product.description.substring(0, 50)}...
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td>{product.category.name}</td>
-                  <td>${product.price.toFixed(2)}</td>
-                  <td>
-                    <span className={`badge ${product.stock > 10 ? 'badge-success' : product.stock > 0 ? 'badge-warning' : 'badge-danger'}`}>
-                      {product.stock} in stock
-                    </span>
-                  </td>
-                  <td>{new Date(product.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => openEditModal(product)}
-                        className="btn btn-primary" 
-                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
-                      >
-                        Edit
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteProduct(product.id)}
-                        className="btn btn-danger" 
-                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    </td>
+                    <td>{product.category.name}</td>
+                    <td>${product.price.toFixed(2)}</td>
+                    <td>
+                      <span className={`badge ${product.stock > 10 ? 'badge-success' : product.stock > 0 ? 'badge-warning' : 'badge-danger'}`}>
+                        {product.stock} in stock
+                      </span>
+                    </td>
+                    <td>{new Date(product.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => openEditModal(product)}
+                          className="btn btn-primary" 
+                          style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteProduct(product.id)}
+                          className="btn btn-danger" 
+                          style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+                    {loading ? 'Loading products...' : 'No products found. Add your first product to get started!'}
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -290,7 +303,7 @@ const Products: React.FC = () => {
                     className="form-input"
                   >
                     <option value="">Select Category</option>
-                    {categories.map(category => (
+                    {Array.isArray(categories) && categories.map(category => (
                       <option key={category.id} value={category.id}>
                         {category.name}
                       </option>
@@ -382,7 +395,7 @@ const Products: React.FC = () => {
                     className="form-input"
                   >
                     <option value="">Select Category</option>
-                    {categories.map(category => (
+                    {Array.isArray(categories) && categories.map(category => (
                       <option key={category.id} value={category.id}>
                         {category.name}
                       </option>
