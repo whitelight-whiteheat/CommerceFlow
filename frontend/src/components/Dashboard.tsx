@@ -62,13 +62,7 @@ const Dashboard: React.FC = () => {
   const fetchDashboardStats = async () => {
     try {
       const response = await apiClient.get('/admin/dashboard');
-
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data);
-      } else {
-        console.error('Failed to fetch dashboard stats:', response.status);
-      }
+      setStats(response.data);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
     } finally {

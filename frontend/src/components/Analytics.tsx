@@ -28,13 +28,7 @@ const Analytics: React.FC = () => {
     try {
       const token = localStorage.getItem('authToken');
       const response = await apiClient.get(`/admin/analytics?period=${period}`);
-
-      if (response.ok) {
-        const data = await response.json();
-        setAnalytics(data);
-      } else {
-        console.error('Failed to fetch analytics:', response.status);
-      }
+      setAnalytics(response.data);
     } catch (error) {
       console.error('Error fetching analytics:', error);
     } finally {

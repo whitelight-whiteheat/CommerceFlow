@@ -61,14 +61,8 @@ const Orders: React.FC = () => {
       if (searchTerm) params.append('search', searchTerm);
 
       const response = await apiClient.get(`/admin/orders?${params}`);
-
-      if (response.ok) {
-        const data: OrdersResponse = await response.json();
-        setOrders(data.orders);
-        setTotalPages(data.pagination.pages);
-      } else {
-        console.error('Failed to fetch orders:', response.status);
-      }
+      setOrders(response.data);
+      setTotalPages(response.data.pagination.pages);
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
@@ -83,18 +77,8 @@ const Orders: React.FC = () => {
   const updateOrderStatus = async (orderId: string, status: string) => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await apiClient.put(`/orders/${orderId}/status`, { status }, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        fetchOrders(); // Refresh orders
-      } else {
-        console.error('Failed to update order status:', response.status);
-      }
+      const response = await apiClient.put(`/orders/${orderId}/status`, { status });
+      setOrders(orders.map(o => o.id === orderId ? response.data : o));
     } catch (error) {
       console.error('Error updating order status:', error);
     }

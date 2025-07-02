@@ -52,15 +52,8 @@ const Products: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const token = localStorage.getItem('authToken');
       const response = await apiClient.get('/admin/products');
-
-      if (response.ok) {
-        const data = await response.json();
-        setProducts(data.products || []);
-      } else {
-        console.error('Failed to fetch products:', response.status);
-      }
+      setProducts(response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {
@@ -70,15 +63,8 @@ const Products: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const token = localStorage.getItem('authToken');
       const response = await apiClient.get('/admin/categories');
-
-      if (response.ok) {
-        const data = await response.json();
-        setCategories(data);
-      } else {
-        console.error('Failed to fetch categories:', response.status);
-      }
+      setCategories(response.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -87,30 +73,24 @@ const Products: React.FC = () => {
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('authToken');
       const response = await apiClient.post('/products', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        setShowAddModal(false);
-        setFormData({
-          name: '',
-          description: '',
-          price: 0,
-          stock: 0,
-          categoryId: '',
-          imageUrl: ''
-        });
-        fetchProducts();
-      } else {
-        const errorData = await response.json();
-        alert(errorData.message || 'Failed to add product');
-      }
+      setProducts([...products, response.data]);
+      setShowAddModal(false);
+      setFormData({
+        name: '',
+        description: '',
+        price: 0,
+        stock: 0,
+        categoryId: '',
+        imageUrl: ''
+      });
     } catch (error) {
       console.error('Error adding product:', error);
       alert('Failed to add product');
@@ -122,31 +102,25 @@ const Products: React.FC = () => {
     if (!editingProduct) return;
 
     try {
-      const token = localStorage.getItem('authToken');
       const response = await apiClient.put(`/products/${editingProduct.id}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        setShowEditModal(false);
-        setEditingProduct(null);
-        setFormData({
-          name: '',
-          description: '',
-          price: 0,
-          stock: 0,
-          categoryId: '',
-          imageUrl: ''
-        });
-        fetchProducts();
-      } else {
-        const errorData = await response.json();
-        alert(errorData.message || 'Failed to update product');
-      }
+      setProducts(products.map(p => p.id === editingProduct.id ? response.data : p));
+      setShowEditModal(false);
+      setEditingProduct(null);
+      setFormData({
+        name: '',
+        description: '',
+        price: 0,
+        stock: 0,
+        categoryId: '',
+        imageUrl: ''
+      });
     } catch (error) {
       console.error('Error updating product:', error);
       alert('Failed to update product');
@@ -157,15 +131,8 @@ const Products: React.FC = () => {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
 
     try {
-      const token = localStorage.getItem('authToken');
-      const response = await apiClient.delete(`/products/${productId}`);
-
-      if (response.ok) {
-        fetchProducts();
-      } else {
-        const errorData = await response.json();
-        alert(errorData.message || 'Failed to delete product');
-      }
+      await apiClient.delete(`/products/${productId}`);
+      setProducts(products.filter(p => p.id !== productId));
     } catch (error) {
       console.error('Error deleting product:', error);
       alert('Failed to delete product');
