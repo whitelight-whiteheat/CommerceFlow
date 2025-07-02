@@ -3,6 +3,7 @@ import { apiClient } from '../utils/api';
 import { useAuth } from './AuthContext';
 import { toastManager } from '../utils/toast';
 
+// Define the CartItem interface
 interface CartItem {
   id: string;
   productId: string;
@@ -17,6 +18,7 @@ interface CartItem {
   };
 }
 
+// Define the Cart interface
 interface Cart {
   id: string;
   userId: string;
@@ -25,6 +27,7 @@ interface Cart {
   updatedAt: string;
 }
 
+// Define the CartContextType interface
 interface CartContextType {
   cart: Cart | null;
   loading: boolean;
@@ -58,16 +61,21 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const refreshCart = useCallback(async () => {
     if (!isAuthenticated) {
+      console.log('CartContext: User not authenticated, skipping cart fetch');
       setCart(null);
       return;
     }
 
     try {
+      console.log('CartContext: Fetching cart for authenticated user');
       setLoading(true);
       const response = await apiClient.get('/cart');
+      console.log('CartContext: Cart fetched successfully:', response.data);
       setCart(response.data);
-    } catch (error) {
-      console.error('Failed to fetch cart:', error);
+    } catch (error: any) {
+      console.error('CartContext: Failed to fetch cart:', error);
+      console.error('CartContext: Error response:', error.response?.data);
+      console.error('CartContext: Error status:', error.response?.status);
       setCart(null);
     } finally {
       setLoading(false);

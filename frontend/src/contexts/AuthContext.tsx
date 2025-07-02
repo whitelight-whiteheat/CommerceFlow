@@ -37,16 +37,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // check if token is in local storage
   useEffect(() => {
     const token = localStorage.getItem('token');
+    console.log('AuthContext: Checking for token:', token ? 'Token found' : 'No token');
+    
     if (token) {
       // set default authorization header
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      console.log('AuthContext: Set Authorization header');
       
       // verify token by getting user profile
       apiClient.get('/users/profile')
         .then(response => {
+          console.log('AuthContext: User profile fetched successfully:', response.data);
           setUser(response.data);
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error('AuthContext: Failed to fetch user profile:', error);
           localStorage.removeItem('token');
           delete apiClient.defaults.headers.common['Authorization'];
         })
@@ -54,6 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setLoading(false);
         });
     } else {
+      console.log('AuthContext: No token found, user not authenticated');
       setLoading(false);
     }
   }, []);
