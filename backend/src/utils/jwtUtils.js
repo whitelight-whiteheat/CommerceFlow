@@ -1,6 +1,9 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
+// HARDCODED JWT SECRET - CHANGE THIS TO YOUR ACTUAL SECRET
+const HARDCODED_JWT_SECRET = 'b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b';
+
 // JWT configuration
 const JWT_CONFIG = {
   expiresIn: process.env.JWT_EXPIRES_IN || '24h',
@@ -8,24 +11,17 @@ const JWT_CONFIG = {
   audience: process.env.JWT_AUDIENCE || 'ecommerce-users'
 };
 
-// Get JWT secret from environment or generate a secure one
+// Always return the hardcoded secret and log it at startup
 const getJwtSecret = () => {
-  const secret = process.env.JWT_SECRET;
-  
-  if (!secret) {
-    console.warn('JWT_SECRET not found in environment variables. Using generated secret.');
-    // Generate a secure random secret (for development only)
-    return crypto.randomBytes(64).toString('hex');
-  }
-  
-  return secret;
+  return HARDCODED_JWT_SECRET;
 };
+
+console.log('[JWT] Using hardcoded JWT secret:', HARDCODED_JWT_SECRET);
 
 // Generate JWT token
 const generateToken = (payload) => {
   try {
     const secret = getJwtSecret();
-    
     return jwt.sign(payload, secret, {
       expiresIn: JWT_CONFIG.expiresIn,
       issuer: JWT_CONFIG.issuer,
@@ -42,7 +38,7 @@ const generateToken = (payload) => {
 const verifyToken = (token) => {
   try {
     const secret = getJwtSecret();
-    
+    console.log('[JWT] Verifying token with secret:', secret);
     return jwt.verify(token, secret, {
       issuer: JWT_CONFIG.issuer,
       audience: JWT_CONFIG.audience,
