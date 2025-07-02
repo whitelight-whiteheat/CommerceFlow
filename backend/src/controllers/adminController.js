@@ -11,34 +11,64 @@ const getDashboardStats = async (req, res) => {
       role: req.user.role
     });
 
-    // Get total counts
+    console.log('Starting dashboard stats calculation...');
+
+    // Get total counts with error handling
+    console.log('Fetching user count...');
     const totalUsers = await prisma.user.count();
+    console.log('User count:', totalUsers);
+
+    console.log('Fetching product count...');
     const totalProducts = await prisma.product.count();
+    console.log('Product count:', totalProducts);
+
+    console.log('Fetching order count...');
     const totalOrders = await prisma.order.count();
+    console.log('Order count:', totalOrders);
+
+    console.log('Fetching category count...');
     const totalCategories = await prisma.category.count();
+    console.log('Category count:', totalCategories);
 
     // Get revenue statistics
-    const revenueStats = await prisma.order.aggregate({
-      where: {
-        status: {
-          in: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED']
-        }
-      },
-      _sum: {
-        total: true
-      },
-      _count: true
-    });
+    console.log('Fetching revenue stats...');
+    let revenueStats = { _sum: { total: null }, _count: 0 };
+    try {
+      revenueStats = await prisma.order.aggregate({
+        where: {
+          status: {
+            in: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED']
+          }
+        },
+        _sum: {
+          total: true
+        },
+        _count: true
+      });
+      console.log('Revenue stats:', revenueStats);
+    } catch (error) {
+      console.log('Error fetching revenue stats:', error.message);
+      revenueStats = { _sum: { total: null }, _count: 0 };
+    }
 
     // Get orders by status
-    const ordersByStatus = await prisma.order.groupBy({
-      by: ['status'],
-      _count: {
-        status: true
-      }
-    });
+    console.log('Fetching orders by status...');
+    let ordersByStatus = [];
+    try {
+      ordersByStatus = await prisma.order.groupBy({
+        by: ['status'],
+        _count: {
+          status: true
+        }
+      });
+      console.log('Orders by status:', ordersByStatus);
+    } catch (error) {
+      console.log('Error fetching orders by status:', error.message);
+      ordersByStatus = [];
+    }
 
     // Get recent orders (last 10)
+    console.log('Fetching recent orders...');
     const recentOrders = await prisma.order.findMany({
       take: 10,
       orderBy: {
@@ -64,8 +94,10 @@ const getDashboardStats = async (req, res) => {
         }
       }
     });
+    console.log('Recent orders count:', recentOrders.length);
 
     // Get low stock products (less than 10 items)
+    console.log('Fetching low stock products...');
     const lowStockProducts = await prisma.product.findMany({
       where: {
         stock: {
@@ -79,35 +111,54 @@ const getDashboardStats = async (req, res) => {
         stock: 'asc'
       }
     });
+    console.log('Low stock products count:', lowStockProducts.length);
 
     // Get top selling products (by order count)
-    const topSellingProducts = await prisma.orderItem.groupBy({
-      by: ['productId'],
-      _sum: {
-        quantity: true
-      },
-      orderBy: {
+    console.log('Fetching top selling products...');
+    let topSellingProducts = [];
+    let topProductsWithDetails = [];
+    
+    try {
+      topSellingProducts = await prisma.orderItem.groupBy({
+        by: ['productId'],
         _sum: {
-          quantity: 'desc'
-        }
-      },
-      take: 5
-    });
+          quantity: true
+        },
+        orderBy: {
+          _sum: {
+            quantity: 'desc'
+          }
+        },
+        take: 5
+      });
+      console.log('Top selling products count:', topSellingProducts.length);
+    } catch (error) {
+      console.log('No order items found, skipping top selling products');
+      topSellingProducts = [];
+    }
 
     // Get product details for top sellers
-    const topProductsWithDetails = await Promise.all(
-      topSellingProducts.map(async (item) => {
-        const product = await prisma.product.findUnique({
-          where: { id: item.productId },
-          include: { category: true }
-        });
-        return {
-          ...product,
-          totalSold: item._sum.quantity
-        };
-      })
-    );
+    console.log('Fetching product details for top sellers...');
+    if (topSellingProducts.length > 0) {
+      topProductsWithDetails = await Promise.all(
+        topSellingProducts.map(async (item) => {
+          const product = await prisma.product.findUnique({
+            where: { id: item.productId },
+            include: { category: true }
+          });
+          return {
+            ...product,
+            totalSold: item._sum.quantity
+          };
+        })
+      );
+      console.log('Top products with details count:', topProductsWithDetails.length);
+    } else {
+      console.log('No top selling products to process');
+      topProductsWithDetails = [];
+    }
 
+    console.log('Preparing response...');
     res.json({
       overview: {
         totalUsers,
@@ -122,8 +173,10 @@ const getDashboardStats = async (req, res) => {
       lowStockProducts,
       topSellingProducts: topProductsWithDetails
     });
+    console.log('Dashboard stats response sent successfully');
   } catch (error) {
     console.error('Dashboard stats error:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).json({ message: 'Error fetching dashboard statistics' });
   }
 };

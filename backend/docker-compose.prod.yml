@@ -30,7 +30,7 @@ services:
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://ecommerce_user:${POSTGRES_PASSWORD}@postgres:5432/ecommerce_prod
-      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET: b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b
       JWT_EXPIRES_IN: 24h
       JWT_ISSUER: ecommerce-api
       JWT_AUDIENCE: ecommerce-users

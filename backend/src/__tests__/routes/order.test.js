@@ -3,6 +3,7 @@ const app = require('../../src/app');
 const { createTestUser, createTestCategory, createTestProduct, createTestCart } = require('../../test/setup');
 const { PrismaClient } = require('@prisma/client');
 const jwt = require('jsonwebtoken');
+const JWT_SECRET = 'b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b';
 
 const prisma = new PrismaClient();
 
@@ -21,8 +22,8 @@ describe('Order Routes', () => {
     // Create test users
     user = await createTestUser('USER');
     admin = await createTestUser('ADMIN');
-    userToken = jwt.sign({ userId: user.id }, 'your-super-secret-jwt-key-change-this-in-production');
-    adminToken = jwt.sign({ userId: admin.id }, 'your-super-secret-jwt-key-change-this-in-production');
+    userToken = jwt.sign({ userId: user.id }, JWT_SECRET);
+    adminToken = jwt.sign({ userId: admin.id }, JWT_SECRET);
     
     // Create test category and product
     category = await createTestCategory();
@@ -66,7 +67,7 @@ describe('Order Routes', () => {
     it('should only return orders for the authenticated user', async () => {
       // Create another user and their order
       const otherUser = await createTestUser('USER');
-      const otherUserToken = jwt.sign({ userId: otherUser.id }, 'your-super-secret-jwt-key-change-this-in-production');
+      const otherUserToken = jwt.sign({ userId: otherUser.id }, JWT_SECRET);
 
       // Create cart and order for other user
       const otherCart = await createTestCart(otherUser.id);
@@ -117,7 +118,7 @@ describe('Order Routes', () => {
 
     it('should not allow accessing other users orders', async () => {
       const otherUser = await createTestUser('USER');
-      const otherUserToken = jwt.sign({ userId: otherUser.id }, 'your-super-secret-jwt-key-change-this-in-production');
+      const otherUserToken = jwt.sign({ userId: otherUser.id }, JWT_SECRET);
 
       await request(app)
         .get(`/api/orders/${order.id}`)
@@ -278,7 +279,7 @@ describe('Order Routes', () => {
 
     it('should not allow cancelling other users orders', async () => {
       const otherUser = await createTestUser('USER');
-      const otherUserToken = jwt.sign({ userId: otherUser.id }, 'your-super-secret-jwt-key-change-this-in-production');
+      const otherUserToken = jwt.sign({ userId: otherUser.id }, JWT_SECRET);
 
       await request(app)
         .post(`/api/orders/${order.id}/cancel`)

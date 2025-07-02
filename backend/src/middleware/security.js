@@ -50,11 +50,11 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
+    const { ENV_CONFIG } = require('../config/constants');
     const allowedOrigins = [
-      process.env.FRONTEND_URL || 'http://localhost:3000',
-      'http://localhost:3000',
-      'https://localhost:3000'
-    ];
+      ENV_CONFIG.CORS_ORIGIN,
+      ENV_CONFIG.FRONTEND_URL
+    ].filter(Boolean); // Remove undefined values
     
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);

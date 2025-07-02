@@ -1,7 +1,10 @@
 import axios from 'axios';
 
-// Get API base URL from environment variable or default to deployed backend
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://resourceful-connection-production.up.railway.app/api';
+// Get API base URL from environment variable or default to localhost in development
+const API_BASE_URL = process.env.REACT_APP_API_URL || 
+  (process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:3001/api' 
+    : 'https://resourceful-connection-production.up.railway.app/api');
 
 // Create axios instance with default configuration
 export const apiClient = axios.create({
@@ -30,11 +33,22 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    console.error('API Error:', {
+      status: error.response?.status,
+      message: error.response?.data?.message,
+      url: error.config?.url
+    });
+    
     if (error.response?.status === 401) {
-      // Token expired or invalid, redirect to login
+      // Token expired or invalid, clear storage and redirect to login
+      console.log('API: 401 Unauthorized - clearing tokens and redirecting to login');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      
+      // Only redirect if not already on login page
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

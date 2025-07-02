@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../app');
 const { createTestUser, createTestCategory } = require('../../test/setup');
-const jwt = require('jsonwebtoken');
+const { generateTestToken, generateAdminTestToken, generateUserTestToken } = require('../../test/jwtTestUtils');
 
 // Authentication Middleware
 describe('Authentication Middleware', () => {
@@ -20,7 +20,7 @@ describe('Authentication Middleware', () => {
     category = await createTestCategory();
 
     // Create valid token
-    validToken = jwt.sign({ userId: user.id }, 'your-super-secret-jwt-key-change-this-in-production');
+    validToken = generateTestToken(user.id);
 
     // Create invalid token
     invalidToken = 'invalid.token.here';
@@ -105,11 +105,11 @@ describe('Authentication Middleware', () => {
     beforeEach(async () => {
       // Create admin user
       const admin = await createTestUser('ADMIN');
-      adminToken = jwt.sign({ userId: admin.id }, 'your-super-secret-jwt-key-change-this-in-production');
+      adminToken = generateAdminTestToken(admin.id);
       
       // Create regular user
       const regularUser = await createTestUser('USER');
-      regularUserToken = jwt.sign({ userId: regularUser.id }, 'your-super-secret-jwt-key-change-this-in-production');
+      regularUserToken = generateUserTestToken(regularUser.id);
     });
 
     // Test allowing admin access to protected routes
@@ -156,11 +156,11 @@ describe('Authentication Middleware', () => {
     beforeEach(async () => {
       // Create owner user
       const owner = await createTestUser('USER');
-      ownerToken = jwt.sign({ userId: owner.id }, 'your-super-secret-jwt-key-change-this-in-production');
+      ownerToken = generateUserTestToken(owner.id);
       
       // Create non-owner user
       const nonOwner = await createTestUser('USER');
-      nonOwnerToken = jwt.sign({ userId: nonOwner.id }, 'your-super-secret-jwt-key-change-this-in-production');
+      nonOwnerToken = generateUserTestToken(nonOwner.id);
     });
 
     it('should allow owner access to their resources', async () => {

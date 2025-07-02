@@ -205,7 +205,7 @@ npm audit
 DATABASE_URL="postgresql://username:password@localhost:5432/ecommerce"
 
 # JWT
-JWT_SECRET="your-jwt-secret"
+JWT_SECRET="b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b"
 JWT_EXPIRES_IN="24h"
 JWT_ISSUER="ecommerce-api"
 JWT_AUDIENCE="ecommerce-users"

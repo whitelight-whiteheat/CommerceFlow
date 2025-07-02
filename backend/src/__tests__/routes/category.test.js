@@ -3,6 +3,7 @@ const app = require('../../src/app');
 const { createTestUser, createTestCategory, createTestProduct } = require('../../test/setup');
 const { PrismaClient } = require('@prisma/client');
 const jwt = require('jsonwebtoken');
+const JWT_SECRET = 'b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b';
 
 const prisma = new PrismaClient();
 
@@ -15,8 +16,8 @@ describe('Category Routes', () => {
     user = await createTestUser('USER');
     
     // Create tokens
-    adminToken = jwt.sign({ userId: admin.id }, 'your-super-secret-jwt-key-change-this-in-production');
-    userToken = jwt.sign({ userId: user.id }, 'your-super-secret-jwt-key-change-this-in-production');
+    adminToken = jwt.sign({ userId: admin.id }, JWT_SECRET);
+    userToken = jwt.sign({ userId: user.id }, JWT_SECRET);
 
     // Create test category
     category = await createTestCategory();

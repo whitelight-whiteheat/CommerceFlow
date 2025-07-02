@@ -274,6 +274,41 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Database health check endpoint
+app.get('/health/db', async (req, res) => {
+  try {
+    const prisma = require('./config/database');
+    
+    // Test basic database connection
+    const userCount = await prisma.user.count();
+    const productCount = await prisma.product.count();
+    const orderCount = await prisma.order.count();
+    const categoryCount = await prisma.category.count();
+    
+    res.status(200).json({ 
+      status: 'OK', 
+      timestamp: new Date().toISOString(),
+      database: {
+        connected: true,
+        userCount,
+        productCount,
+        orderCount,
+        categoryCount
+      }
+    });
+  } catch (error) {
+    console.error('Database health check error:', error);
+    res.status(500).json({ 
+      status: 'ERROR', 
+      timestamp: new Date().toISOString(),
+      database: {
+        connected: false,
+        error: error.message
+      }
+    });
+  }
+});
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ message: 'Route not found' });

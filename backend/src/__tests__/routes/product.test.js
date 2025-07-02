@@ -2,7 +2,7 @@ const request = require('supertest');
 const app = require('../../src/app');
 const { createTestUser, createTestCategory, createTestProduct } = require('../../test/setup');
 const { PrismaClient } = require('@prisma/client');
-const jwt = require('jsonwebtoken');
+const { generateAdminTestToken, generateUserTestToken } = require('../../test/jwtTestUtils');
 
 const prisma = new PrismaClient();
 
@@ -16,9 +16,9 @@ describe('Product Routes', () => {
     admin = await createTestUser('ADMIN');
     user = await createTestUser('USER');
     
-    // Create tokens
-    adminToken = jwt.sign({ userId: admin.id }, 'your-super-secret-jwt-key-change-this-in-production');
-    userToken = jwt.sign({ userId: user.id }, 'your-super-secret-jwt-key-change-this-in-production');
+    // Create tokens using centralized utilities
+    adminToken = generateAdminTestToken(admin.id);
+    userToken = generateUserTestToken(user.id);
     
     // Create test category
     category = await createTestCategory();

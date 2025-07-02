@@ -52,8 +52,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         })
         .catch((error) => {
           console.error('AuthContext: Failed to fetch user profile:', error);
+          console.error('AuthContext: Error status:', error.response?.status);
+          console.error('AuthContext: Error message:', error.response?.data?.message);
+          
+          // Clear invalid token and redirect to login
           localStorage.removeItem('token');
+          localStorage.removeItem('user');
           delete apiClient.defaults.headers.common['Authorization'];
+          
+          // If it's an invalid token error, show a user-friendly message
+          if (error.response?.status === 401 || error.response?.data?.message?.includes('Invalid token')) {
+            console.log('AuthContext: Invalid token detected, user needs to login again');
+          }
         })
         .finally(() => {
           setLoading(false);

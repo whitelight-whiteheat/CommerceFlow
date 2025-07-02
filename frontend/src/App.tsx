@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import ToastContainer from './components/ToastContainer';
+import TokenDebugger from './components/TokenDebugger';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Users from './components/Users';
@@ -95,6 +96,7 @@ const App: React.FC = () => {
           <CartProvider>
             <AppContent />
             <ToastContainer />
+            <TokenDebugger />
           </CartProvider>
         </AuthProvider>
       </Router>

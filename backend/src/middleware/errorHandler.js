@@ -22,13 +22,13 @@ class ValidationError extends AppError {
     super(message, 400);
   }
 }
-
+// Authentication error
 class AuthenticationError extends AppError {
   constructor(message = 'Authentication failed') {
     super(message, 401);
   }
 }
-
+// Authorization error
 class AuthorizationError extends AppError {
   constructor(message = 'Not authorized') {
     super(message, 403);

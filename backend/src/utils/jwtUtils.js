@@ -1,22 +1,25 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
-// HARDCODED JWT SECRET - CHANGE THIS TO YOUR ACTUAL SECRET
-const HARDCODED_JWT_SECRET = 'b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b';
+// Import centralized configuration
+const { ENV_CONFIG } = require('../config/constants');
 
 // JWT configuration
 const JWT_CONFIG = {
-  expiresIn: process.env.JWT_EXPIRES_IN || '24h',
-  issuer: process.env.JWT_ISSUER || 'ecommerce-api',
-  audience: process.env.JWT_AUDIENCE || 'ecommerce-users'
+  expiresIn: ENV_CONFIG.JWT_EXPIRES_IN,
+  issuer: ENV_CONFIG.JWT_ISSUER,
+  audience: ENV_CONFIG.JWT_AUDIENCE
 };
 
-// Always return the hardcoded secret and log it at startup
+// Get JWT secret from environment variable
 const getJwtSecret = () => {
-  return HARDCODED_JWT_SECRET;
+  return ENV_CONFIG.JWT_SECRET;
 };
 
-console.log('[JWT] Using hardcoded JWT secret:', HARDCODED_JWT_SECRET);
+// Remove debug logging in production
+if (ENV_CONFIG.NODE_ENV === 'development') {
+  console.log('[JWT] Using JWT secret from environment:', ENV_CONFIG.JWT_SECRET ? 'Environment variable' : 'NOT SET');
+}
 
 // Generate JWT token
 const generateToken = (payload) => {
@@ -38,17 +41,29 @@ const generateToken = (payload) => {
 const verifyToken = (token) => {
   try {
     const secret = getJwtSecret();
-    console.log('[JWT] Verifying token with secret:', secret);
+      // Remove debug logging in production
+  if (ENV_CONFIG.NODE_ENV === 'development') {
+    console.log('[JWT] Verifying token with secret:', secret ? 'SET' : 'NOT SET');
+    console.log('[JWT] Token to verify:', token.substring(0, 20) + '...');
+  }
+    
     return jwt.verify(token, secret, {
       issuer: JWT_CONFIG.issuer,
       audience: JWT_CONFIG.audience,
       algorithms: ['HS256']
     });
   } catch (error) {
+    console.error('[JWT] Verification failed:', error.name, error.message);
+    
     if (error.name === 'TokenExpiredError') {
       throw new Error('Token has expired');
     } else if (error.name === 'JsonWebTokenError') {
-      throw new Error('Invalid token');
+      // Provide more specific error for debugging
+      console.error('[JWT] Invalid token details:', {
+        error: error.message,
+        tokenPreview: token ? token.substring(0, 20) + '...' : 'null'
+      });
+      throw new Error('Invalid token - please login again');
     } else if (error.name === 'NotBeforeError') {
       throw new Error('Token not active');
     } else {

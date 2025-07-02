@@ -33,7 +33,7 @@ const loginAdmin = (email, password) => {
         email: adminUser.email, 
         role: adminUser.role 
       },
-      'your-super-secret-jwt-key-change-this-in-production',
+      process.env.JWT_SECRET || 'b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b',
       { expiresIn: '24h' }
     );
     

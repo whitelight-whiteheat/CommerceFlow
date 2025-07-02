@@ -1,15 +1,7 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const prisma = require('../config/database');
 const { validationResult } = require('express-validator');
-
-const generateToken = (user) => {
-  return jwt.sign(
-    { id: user.id },
-    'your-super-secret-jwt-key-change-this-in-production',
-    { expiresIn: '7d' }
-  );
-};
+const { generateToken } = require('../utils/jwtUtils');
 
 const register = async (req, res) => {
   try {
@@ -48,7 +40,7 @@ const register = async (req, res) => {
       }
     });
 
-    const token = generateToken(user);
+    const token = generateToken({ id: user.id });
 
     res.status(201).json({
       user: {
@@ -95,7 +87,7 @@ const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = generateToken(user);
+    const token = generateToken({ id: user.id });
 
     res.json({
       user: {

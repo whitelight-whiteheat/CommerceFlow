@@ -22,7 +22,7 @@ Create a `.env` file in the backend directory with the following variables:
 POSTGRES_PASSWORD=your_secure_password_here
 
 # JWT
-JWT_SECRET=your_very_long_random_secret_here
+JWT_SECRET=b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b
 
 # Frontend URL
 FRONTEND_URL=https://your-domain.com

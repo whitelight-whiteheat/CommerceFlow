@@ -3,6 +3,7 @@ const app = require('../../src/app');
 const { createTestUser, createTestCategory, createTestProduct, createTestCart } = require('../../test/setup');
 const { PrismaClient } = require('@prisma/client');
 const jwt = require('jsonwebtoken');
+const JWT_SECRET = 'b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b';
 
 const prisma = new PrismaClient();
 
@@ -13,7 +14,7 @@ describe('Cart Routes', () => {
   beforeEach(async () => {
     // Create test user
     user = await createTestUser('USER');
-    userToken = jwt.sign({ userId: user.id }, 'your-super-secret-jwt-key-change-this-in-production');
+    userToken = jwt.sign({ userId: user.id }, JWT_SECRET);
 
     // Create test category and product
     category = await createTestCategory();
@@ -167,7 +168,7 @@ describe('Cart Routes', () => {
     it('should not allow updating other users cart items', async () => {
       // Create another user
       const otherUser = await createTestUser('USER');
-      const otherUserToken = jwt.sign({ userId: otherUser.id }, 'your-super-secret-jwt-key-change-this-in-production');
+      const otherUserToken = jwt.sign({ userId: otherUser.id }, JWT_SECRET);
 
       await request(app)
         .put(`/api/cart/items/${cartItem.id}`)
@@ -209,7 +210,7 @@ describe('Cart Routes', () => {
     it('should not allow removing other users cart items', async () => {
       // Create another user
       const otherUser = await createTestUser('USER');
-      const otherUserToken = jwt.sign({ userId: otherUser.id }, 'your-super-secret-jwt-key-change-this-in-production');
+      const otherUserToken = jwt.sign({ userId: otherUser.id }, JWT_SECRET);
 
       await request(app)
         .delete(`/api/cart/items/${cartItem.id}`)
