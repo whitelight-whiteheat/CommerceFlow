@@ -26,7 +26,6 @@ const Analytics: React.FC = () => {
 
   const fetchAnalytics = useCallback(async () => {
     try {
-      const token = localStorage.getItem('authToken');
       const response = await apiClient.get(`/admin/analytics?period=${period}`);
       setAnalytics(response.data);
     } catch (error) {

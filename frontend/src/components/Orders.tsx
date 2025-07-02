@@ -29,16 +29,6 @@ interface Order {
   }>;
 }
 
-interface OrdersResponse {
-  orders: Order[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    pages: number;
-  };
-}
-
 const Orders: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,7 +41,6 @@ const Orders: React.FC = () => {
 
   const fetchOrders = useCallback(async () => {
     try {
-      const token = localStorage.getItem('authToken');
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: '20'
@@ -76,7 +65,6 @@ const Orders: React.FC = () => {
 
   const updateOrderStatus = async (orderId: string, status: string) => {
     try {
-      const token = localStorage.getItem('authToken');
       const response = await apiClient.put(`/orders/${orderId}/status`, { status });
       setOrders(orders.map(o => o.id === orderId ? response.data : o));
     } catch (error) {
