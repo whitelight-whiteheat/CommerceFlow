@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Get API base URL from environment variable or default to localhost
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+// Get API base URL from environment variable or default to deployed backend
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://resourceful-connection-production.up.railway.app/api';
 
 // Create axios instance with default configuration
 export const apiClient = axios.create({
