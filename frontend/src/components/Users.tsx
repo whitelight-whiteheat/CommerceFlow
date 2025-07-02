@@ -9,16 +9,6 @@ interface User {
   createdAt: string;
 }
 
-interface UsersResponse {
-  users: User[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    pages: number;
-  };
-}
-
 const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +19,6 @@ const Users: React.FC = () => {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const token = localStorage.getItem('authToken');
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: '20'
