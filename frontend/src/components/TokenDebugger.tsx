@@ -39,7 +39,8 @@ const TokenDebugger: React.FC = () => {
     info.push('4. Environment Information:');
     info.push(`   API URL: ${process.env.REACT_APP_API_URL || 'Default'}`);
     info.push(`   Current URL: ${window.location.href}`);
-    info.push(`   User Agent: ${navigator.userAgent.substring(0, 50)}...\n');
+    info.push(`   User Agent: ${navigator.userAgent.substring(0, 50)}...`);
+    info.push('\n');
     
     setDebugInfo(info.join('\n'));
   };
