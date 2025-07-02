@@ -1,3 +1,4 @@
+console.log('JWT_SECRET at startup:', process.env.JWT_SECRET);
 const app = require('./app');
 
 // Start server
