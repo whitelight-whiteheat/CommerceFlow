@@ -8,6 +8,7 @@
     "backend"
   ],
   "scripts": {
+    "setup": "node scripts/setup-dev.js",
     "dev": "npx concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm start",

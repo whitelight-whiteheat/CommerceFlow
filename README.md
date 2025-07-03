@@ -92,7 +92,19 @@ git clone https://github.com/whitelight-whiteheat/CommerceFlow.git
 cd CommerceFlow
 ```
 
-### 2. Start with Docker (Recommended)
+### 2. Quick Setup (Recommended)
+```bash
+# Setup environment files
+npm run setup
+
+# Install all dependencies
+npm run install:all
+
+# Start development servers
+npm run dev
+```
+
+### 3. Docker Setup (Alternative)
 ```bash
 # Start all services
 cd backend
@@ -104,7 +116,7 @@ npm install
 npm start
 ```
 
-### 3. Manual Setup
+### 4. Manual Setup
 
 #### Backend Setup
 ```bash

@@ -83,7 +83,7 @@ Ecommerce MVP - Full-Stack Web Application
 
 ### Project Section
 ```
-Ecommerce MVP - Full-Stack Web Application
+CommerceFlow - Full-Stack Web Application
 Duration: [Your timeline]
 Role: Full-Stack Developer
 
@@ -151,7 +151,7 @@ Technologies: React, TypeScript, Node.js, Express, PostgreSQL, Docker, JWT, Pris
 
 ### Repository Structure
 ```
-EcommerceMVP/
+CommerceFlow/
 ├── README.md (comprehensive)
 ├── frontend/ (React app)
 ├── backend/ (Node.js API)
