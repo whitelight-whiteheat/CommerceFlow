@@ -1,4 +1,4 @@
-# 🛒 Ecommerce MVP - Full-Stack Ecommerce Platform
+# 🛒 CommerceFlow - Full-Stack Ecommerce Platform
 
 A production-ready, full-stack ecommerce platform built with modern technologies, featuring comprehensive security, performance optimization, and deployment automation.
 
@@ -56,7 +56,7 @@ A production-ready, full-stack ecommerce platform built with modern technologies
 ## 🏗️ Architecture
 
 ```
-ecommerce-platform/
+CommerceFlow/
 ├── backend/                 # Node.js/Express API
 │   ├── src/
 │   │   ├── controllers/     # Route handlers with caching
@@ -88,8 +88,8 @@ ecommerce-platform/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/EcommerceMVP.git
-cd EcommerceMVP
+git clone https://github.com/whitelight-whiteheat/CommerceFlow.git
+cd CommerceFlow
 ```
 
 ### 2. Start with Docker (Recommended)
@@ -207,13 +207,13 @@ npm audit
 ### Backend (.env)
 ```env
 # Database
-DATABASE_URL="postgresql://username:password@localhost:5432/ecommerce"
+DATABASE_URL="postgresql://username:password@localhost:5432/commerceflow"
 
 # JWT
-JWT_SECRET="b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b"
+JWT_SECRET="your-secure-jwt-secret-here"
 JWT_EXPIRES_IN="24h"
-JWT_ISSUER="ecommerce-api"
-JWT_AUDIENCE="ecommerce-users"
+JWT_ISSUER="commerceflow-api"
+JWT_AUDIENCE="commerceflow-users"
 
 # Server
 NODE_ENV="development"
@@ -342,6 +342,7 @@ If you encounter any issues or have questions:
 - ✅ **Phase 3**: Business Logic (Completed)
 - ✅ **Phase 4**: Polish & Launch (Completed)
 - ✅ **Phase 5**: Resume Enhancement (Completed)
+- ✅ **Phase 6**: GitHub Repository Setup (Completed)
 
 ## 🎯 Next Steps
 
@@ -350,6 +351,8 @@ If you encounter any issues or have questions:
 - [ ] Product reviews and ratings
 - [ ] Advanced analytics
 - [ ] Mobile app (React Native)
+- [ ] Multi-language support
+- [ ] Advanced search with Elasticsearch
 
 ---
 
