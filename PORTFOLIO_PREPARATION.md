@@ -1,86 +1,35 @@
-# Ecommerce MVP - Portfolio Preparation Guide
+# CommerceFlow - Portfolio Preparation Guide
 
-## 🎯 Overview
+## Overview
 
-This guide will help you showcase your Ecommerce MVP project professionally on your resume, LinkedIn, and portfolio.
+This guide will help you showcase your CommerceFlow project professionally on your resume, LinkedIn, and portfolio.
 
-## 📋 Portfolio Preparation Checklist
+## 🚀 Quick Portfolio Setup
 
-### ✅ 1. Project Documentation
-- [x] Comprehensive README.md
-- [x] Technical architecture documentation
-- [x] API documentation
-- [x] Deployment guide
-- [x] Development timeline
-
-### ✅ 2. Code Quality
-- [x] Clean, well-structured code
-- [x] Error handling and validation
-- [x] Security best practices
-- [x] Performance optimization
-- [x] Responsive design
-
-### ✅ 3. Features Implemented
-- [x] User authentication & authorization
-- [x] Product catalog with images
-- [x] Shopping cart functionality
-- [x] Order management
-- [x] Admin dashboard
-- [x] Search and filtering
-- [x] Responsive UI/UX
-
-### ✅ 4. Technical Stack
-- [x] Full-stack JavaScript/TypeScript
-- [x] Modern React with hooks
-- [x] Node.js/Express backend
-- [x] PostgreSQL database
-- [x] Docker containerization
-- [x] RESTful API design
-
-## 🚀 Deployment Options
-
-### Option 1: Free Deployment (Recommended for Portfolio)
-
-#### A. Render.com (Free Tier)
+### 1. Update Repository
 ```bash
-# 1. Push to GitHub
+# Commit all changes
 git add .
-git commit -m "Portfolio ready ecommerce MVP"
+git commit -m "Portfolio ready: Complete CommerceFlow platform with modern branding"
+
+# Push to GitHub
 git push origin main
-
-# 2. Connect to Render.com
-# - Sign up at render.com
-# - Connect your GitHub repo
-# - Deploy backend and frontend separately
 ```
 
-#### B. Railway.app (Free Tier)
-```bash
-# Similar to Render, but with different UI
-# Great for full-stack apps
-```
+### 2. Update GitHub Repository
+- Go to your GitHub repository
+- Update repository name to `CommerceFlow` (if desired)
+- Update repository description: "Production-ready full-stack e-commerce platform with React, Node.js, and Docker"
 
-#### C. Vercel + Railway
-```bash
-# Frontend: Vercel (React)
-# Backend: Railway (Node.js)
-# Database: Railway PostgreSQL
-```
+### 3. Deploy to Railway
+- Select your CommerceFlow repository
+- Deploy both frontend and backend services
+- Update live URLs in README
 
-### Option 2: Paid Hosting (Professional)
+## 📝 Resume Section
 
-#### A. DigitalOcean App Platform
-- $5-12/month
-- Automatic deployments
-- Built-in SSL
-- Custom domains
-
-#### B. AWS/GCP/Azure
-- More complex setup
-- Highly scalable
-- Professional infrastructure
-
-## 📝 Resume Content
+### Project Title
+**CommerceFlow - Full-Stack E-commerce Platform**
 
 ### Project Description
 ```

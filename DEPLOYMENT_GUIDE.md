@@ -1,289 +1,242 @@
-# Ecommerce MVP - Production Deployment Guide
+# CommerceFlow - Production Deployment Guide
 
 ## Overview
 
-This guide provides step-by-step instructions for deploying the Ecommerce MVP to production.
+This guide provides step-by-step instructions for deploying the CommerceFlow platform to production.
 
 ## Prerequisites
 
 - Docker and Docker Compose installed
-- A server with at least 2GB RAM and 20GB storage
-- Domain name (optional but recommended)
-- SSL certificate (for HTTPS)
+- PostgreSQL database (local or cloud)
+- Railway account (for deployment)
+- GitHub repository set up
 
-## Environment Setup
+## Quick Deployment
 
-### 1. Set Environment Variables
-
-Create a `.env` file in the backend directory with the following variables:
-
+### 1. Clone Repository
 ```bash
-# Database
-POSTGRES_PASSWORD=your_secure_password_here
-
-# JWT
-JWT_SECRET=b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b
-
-# Frontend URL
-FRONTEND_URL=https://your-domain.com
-
-# Redis
-REDIS_PASSWORD=your_redis_password_here
+git clone https://github.com/your-username/CommerceFlow.git
+cd CommerceFlow
 ```
 
-### 2. Generate Secure Secrets
-
+### 2. Environment Setup
 ```bash
-# Generate JWT secret
-openssl rand -hex 64
+# Backend environment
+cd backend
+cp env.production.example .env
+# Edit .env with your production values
 
-# Generate database password
-openssl rand -base64 32
-
-# Generate Redis password
-openssl rand -base64 32
+# Frontend environment
+cd ../frontend
+cp .env.example .env
+# Edit .env with your API URL
 ```
 
-## Deployment Steps
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/your-username/EcommerceMVP.git
-cd EcommerceMVP
-```
-
-### 2. Build Frontend
-
-```bash
-cd frontend
-npm install
-npm run build
-cd ..
-```
-
-### 3. Deploy with Docker Compose
-
+### 3. Database Setup
 ```bash
 cd backend
-chmod +x scripts/deploy.sh
-./scripts/deploy.sh
+npx prisma migrate deploy
+npx prisma generate
 ```
 
-### 4. Verify Deployment
-
+### 4. Docker Deployment
 ```bash
-# Check container status
-docker-compose -f docker-compose.prod.yml ps
+# Production build
+docker-compose -f docker-compose.prod.yml up -d
 
-# Check application health
-curl http://localhost:3001/health
-
-# Check logs
-docker-compose -f docker-compose.prod.yml logs -f
+# Development build
+docker-compose up -d
 ```
 
-## SSL/HTTPS Setup
+## Railway Deployment
 
-### Using Let's Encrypt
+### 1. Backend Deployment
+- Connect your CommerceFlow repository to Railway
+- Set environment variables:
+  - `DATABASE_URL`
+  - `JWT_SECRET`
+  - `NODE_ENV=production`
+- Deploy backend service
 
-1. Install Certbot:
-```bash
-sudo apt update
-sudo apt install certbot
+### 2. Frontend Deployment
+- Create new Railway service for frontend
+- Set build command: `npm run build`
+- Set environment variables:
+  - `REACT_APP_API_URL`
+- Deploy frontend service
+
+### 3. Database Setup
+- Create PostgreSQL service in Railway
+- Run migrations:
+  ```bash
+  npx prisma migrate deploy
+  npx prisma generate
+  ```
+
+## Configuration
+
+### Environment Variables
+
+#### Backend (.env)
+```env
+DATABASE_URL="postgresql://username:password@host:port/database"
+JWT_SECRET="your-secure-jwt-secret"
+PORT=5000
+NODE_ENV=production
+REDIS_URL="redis://localhost:6379"
 ```
 
-2. Obtain SSL certificate:
-```bash
-sudo certbot certonly --standalone -d your-domain.com
+#### Frontend (.env)
+```env
+REACT_APP_API_URL=https://your-backend-url.railway.app
+REACT_APP_ENV=production
 ```
 
-3. Update nginx configuration to use SSL certificates.
+### Docker Configuration
 
-## Monitoring and Maintenance
+#### docker-compose.prod.yml
+```yaml
+version: '3.8'
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - postgres
+      - redis
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: commerceflow
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+```
+
+## 🔒 Security Configuration
+
+### SSL/HTTPS
+- Railway automatically provides SSL certificates
+- Configure custom domain if needed
+- Update CORS settings for production
+
+### Environment Security
+- Use strong JWT secrets
+- Secure database credentials
+- Enable rate limiting
+- Configure proper CORS origins
+
+## 📊 Monitoring
 
 ### Health Checks
-
-The application includes built-in health checks:
-
-- Application: `http://your-domain.com/health`
-- Database: Automatic health checks in Docker
-- Redis: Automatic health checks in Docker
-
-### Logs
-
-View logs for different services:
-
-```bash
-# Application logs
-docker-compose -f docker-compose.prod.yml logs -f app
-
-# Database logs
-docker-compose -f docker-compose.prod.yml logs -f postgres
-
-# Nginx logs
-docker-compose -f docker-compose.prod.yml logs -f nginx
-```
+- Backend: `/health` endpoint
+- Frontend: Built-in React health checks
+- Database: Connection monitoring
 
 ### Performance Monitoring
+- API response times
+- Database query performance
+- Cache hit rates
+- Error rates
 
-Access performance metrics (admin only):
+## 🔄 CI/CD Pipeline
 
-```bash
-curl -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
-  http://your-domain.com/api/products/metrics/performance
+### GitHub Actions
+```yaml
+name: Deploy to Railway
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy to Railway
+        uses: railway/deploy@v1
+        with:
+          service: commerceflow-backend
 ```
 
-### Database Backups
-
-Set up automated backups:
-
-```bash
-# Create backup directory
-mkdir -p backups
-
-# Manual backup
-docker exec ecommerce-postgres-prod pg_dump -U ecommerce_user ecommerce_prod > backups/backup_$(date +%Y%m%d_%H%M%S).sql
-
-# Automated backup (add to crontab)
-0 2 * * * docker exec ecommerce-postgres-prod pg_dump -U ecommerce_user ecommerce_prod > /path/to/backups/backup_$(date +\%Y\%m\%d).sql
-```
-
-## Troubleshooting
+## 🚨 Troubleshooting
 
 ### Common Issues
+1. **Database Connection**: Check DATABASE_URL format
+2. **CORS Errors**: Verify frontend API URL
+3. **Build Failures**: Check Node.js version compatibility
+4. **Environment Variables**: Ensure all required vars are set
 
-1. **Database Connection Failed**
-   - Check if PostgreSQL container is running
-   - Verify DATABASE_URL in environment variables
-   - Check database logs
-
-2. **Application Won't Start**
-   - Check application logs
-   - Verify all environment variables are set
-   - Ensure ports are not in use
-
-3. **Performance Issues**
-   - Check resource usage: `docker stats`
-   - Review performance metrics
-   - Consider scaling resources
-
-### Rollback Procedure
-
-If deployment fails, rollback to previous version:
-
+### Debug Commands
 ```bash
-# Stop current deployment
-docker-compose -f docker-compose.prod.yml down
+# Check backend logs
+docker-compose logs backend
 
-# Restore from backup
-docker exec -i ecommerce-postgres-prod psql -U ecommerce_user ecommerce_prod < backups/backup_YYYYMMDD.sql
+# Check database connection
+npx prisma db push
 
-# Restart with previous image
-docker-compose -f docker-compose.prod.yml up -d
+# Test API endpoints
+curl https://your-api-url.railway.app/health
 ```
 
-## Security Considerations
+## 📈 Performance Optimization
 
-1. **Firewall Configuration**
-   - Only expose necessary ports (80, 443)
-   - Block direct database access
-   - Use VPN for admin access
+### Caching Strategy
+- Redis for session storage
+- In-memory caching for frequently accessed data
+- Database query optimization
 
-2. **Regular Updates**
-   - Keep Docker images updated
-   - Regularly update dependencies
-   - Monitor security advisories
+### Database Optimization
+- Proper indexing
+- Query optimization
+- Connection pooling
 
-3. **Access Control**
-   - Use strong passwords
-   - Implement rate limiting
-   - Monitor access logs
+### Frontend Optimization
+- Code splitting
+- Bundle optimization
+- Image compression
 
-## Scaling
+## 🔄 Updates and Maintenance
 
-### Horizontal Scaling
+### Regular Updates
+- Security patches
+- Dependency updates
+- Performance monitoring
+- Backup verification
 
-To scale the application:
+### Backup Strategy
+- Database backups
+- Configuration backups
+- Code repository backups
 
-```bash
-# Scale application instances
-docker-compose -f docker-compose.prod.yml up -d --scale app=3
+## 📞 Support
 
-# Add load balancer configuration
-```
+For deployment issues:
+- Check Railway documentation
+- Review application logs
+- Verify environment configuration
+- Test locally before deploying
 
-### Vertical Scaling
+---
 
-Update resource limits in `docker-compose.prod.yml`:
-
-```yaml
-deploy:
-  resources:
-    limits:
-      memory: 1G
-      cpus: '1.0'
-```
-
-## Support
-
-For issues and questions:
-
-1. Check the logs first
-2. Review this deployment guide
-3. Check the main README.md
-4. Open an issue on GitHub
-
-## Performance Optimization
-
-### Production Optimizations
-
-1. **Database Indexing**
-   - Ensure proper indexes on frequently queried columns
-   - Monitor slow queries
-
-2. **Caching**
-   - Redis is configured for caching
-   - Monitor cache hit rates
-
-3. **CDN**
-   - Consider using a CDN for static assets
-   - Configure proper cache headers
-
-### Monitoring Setup
-
-Consider setting up monitoring tools:
-
-- Prometheus for metrics
-- Grafana for visualization
-- AlertManager for notifications
-
-## Backup and Recovery
-
-### Automated Backups
-
-Set up automated backup scripts:
-
-```bash
-#!/bin/bash
-# backup.sh
-DATE=$(date +%Y%m%d_%H%M%S)
-docker exec ecommerce-postgres-prod pg_dump -U ecommerce_user ecommerce_prod > backups/backup_$DATE.sql
-# Keep only last 7 days of backups
-find backups -name "backup_*.sql" -mtime +7 -delete
-```
-
-### Recovery Procedure
-
-To restore from backup:
-
-```bash
-# Stop application
-docker-compose -f docker-compose.prod.yml down
-
-# Restore database
-docker exec -i ecommerce-postgres-prod psql -U ecommerce_user ecommerce_prod < backups/backup_YYYYMMDD.sql
-
-# Restart application
-docker-compose -f docker-compose.prod.yml up -d
-``` 
+**CommerceFlow** - Seamless commerce experiences, powered by modern technology. 
