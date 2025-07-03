@@ -24,12 +24,17 @@ interface Category {
   name: string;
 }
 
+type SortOption = 'name' | 'price-low' | 'price-high' | 'newest' | 'popular';
+
 const ProductCatalog: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
+  const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 1000 });
+  const [showFilters, setShowFilters] = useState(false);
   const [addingToCart, setAddingToCart] = useState<Set<string>>(new Set());
   const { addToCart } = useCart();
   const { isAuthenticated } = useAuth();
@@ -43,11 +48,10 @@ const ProductCatalog: React.FC = () => {
     try {
       setLoading(true);
       const response = await apiClient.get('/products');
-      // The API returns {products: [], pagination: {}} format
       setProducts(response.data.products || []);
     } catch (error) {
       console.error('Failed to fetch products:', error);
-      setProducts([]); // Set empty array on error to prevent filter issues
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -83,12 +87,49 @@ const ProductCatalog: React.FC = () => {
     }
   }, [isAuthenticated, addToCart]);
 
-  const filteredProducts = products.filter(product => {
-    const matchesCategory = !selectedCategory || product.category.id === selectedCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const sortProducts = (products: Product[]): Product[] => {
+    const sorted = [...products];
+    switch (sortBy) {
+      case 'name':
+        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+      case 'price-low':
+        return sorted.sort((a, b) => a.price - b.price);
+      case 'price-high':
+        return sorted.sort((a, b) => b.price - a.price);
+      case 'newest':
+        return sorted.sort((a, b) => new Date(b.id).getTime() - new Date(a.id).getTime());
+      case 'popular':
+        return sorted.sort((a, b) => b.stock - a.stock); // Using stock as popularity proxy
+      default:
+        return sorted;
+    }
+  };
+
+  const filteredProducts = sortProducts(
+    products.filter(product => {
+      const matchesCategory = !selectedCategory || product.category.id === selectedCategory;
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           product.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesPrice = product.price >= priceRange.min && product.price <= priceRange.max;
+      return matchesCategory && matchesSearch && matchesPrice;
+    })
+  );
+
+  const clearFilters = () => {
+    setSelectedCategory('');
+    setSearchTerm('');
+    setSortBy('newest');
+    setPriceRange({ min: 0, max: 1000 });
+  };
+
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (selectedCategory) count++;
+    if (searchTerm) count++;
+    if (sortBy !== 'newest') count++;
+    if (priceRange.min > 0 || priceRange.max < 1000) count++;
+    return count;
+  };
 
   if (loading) {
     return (
@@ -101,7 +142,11 @@ const ProductCatalog: React.FC = () => {
   return (
     <div className="catalog-container">
       <div className="catalog-header">
-        <h1>Product Catalog</h1>
+        <div className="catalog-title">
+          <h1>Product Catalog</h1>
+          <span className="product-count">{filteredProducts.length} products</span>
+        </div>
+        
         <div className="catalog-controls">
           <div className="search-box">
             <input
@@ -112,7 +157,34 @@ const ProductCatalog: React.FC = () => {
               className="search-input"
             />
           </div>
-          <div className="category-filter">
+          
+          <div className="sort-filter">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              className="sort-select"
+            >
+              <option value="newest">Newest First</option>
+              <option value="name">Name A-Z</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="popular">Most Popular</option>
+            </select>
+          </div>
+
+          <button
+            className={`filter-toggle-btn ${showFilters ? 'active' : ''}`}
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            Filters {getActiveFiltersCount() > 0 && `(${getActiveFiltersCount()})`}
+          </button>
+        </div>
+      </div>
+
+      {showFilters && (
+        <div className="advanced-filters">
+          <div className="filter-section">
+            <h3>Category</h3>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -126,14 +198,42 @@ const ProductCatalog: React.FC = () => {
               ))}
             </select>
           </div>
+
+          <div className="filter-section">
+            <h3>Price Range</h3>
+            <div className="price-range">
+              <input
+                type="number"
+                placeholder="Min"
+                value={priceRange.min}
+                onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) || 0 }))}
+                className="price-input"
+              />
+              <span>to</span>
+              <input
+                type="number"
+                placeholder="Max"
+                value={priceRange.max}
+                onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) || 1000 }))}
+                className="price-input"
+              />
+            </div>
+          </div>
+
+          <button onClick={clearFilters} className="clear-filters-btn">
+            Clear All Filters
+          </button>
         </div>
-      </div>
+      )}
 
       <div className="products-grid">
         {filteredProducts.length === 0 ? (
           <div className="no-products">
             <h3>No products found</h3>
-            <p>Try adjusting your search or category filter.</p>
+            <p>Try adjusting your search or filters.</p>
+            <button onClick={clearFilters} className="clear-filters-btn">
+              Clear All Filters
+            </button>
           </div>
         ) : (
           filteredProducts.map(product => (

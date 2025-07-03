@@ -32,6 +32,7 @@ const CustomerDashboard: React.FC = () => {
     name: user?.name || '',
     email: user?.email || ''
   });
+  const [orderFilter, setOrderFilter] = useState<string>('all');
 
   useEffect(() => {
     if (user) {
@@ -58,7 +59,8 @@ const CustomerDashboard: React.FC = () => {
   const handleProfileUpdate = async () => {
     try {
       await apiClient.put('/users/profile', profileData);
-      // Update the user context with new data
+      alert('Profile updated successfully!');
+      setEditingProfile(false);
       window.location.reload(); // Simple refresh to update context
     } catch (error: any) {
       alert(error.response?.data?.message || 'Failed to update profile');
@@ -76,6 +78,17 @@ const CustomerDashboard: React.FC = () => {
     }
   };
 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'PENDING': return '⏳';
+      case 'PROCESSING': return '⚙️';
+      case 'SHIPPED': return '📦';
+      case 'DELIVERED': return '✅';
+      case 'CANCELLED': return '❌';
+      default: return '📋';
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -84,6 +97,19 @@ const CustomerDashboard: React.FC = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const filteredOrders = orderFilter === 'all' 
+    ? orders 
+    : orders.filter(order => order.status.toLowerCase() === orderFilter);
+
+  const orderStats = {
+    total: orders.length,
+    pending: orders.filter(o => o.status === 'PENDING').length,
+    processing: orders.filter(o => o.status === 'PROCESSING').length,
+    shipped: orders.filter(o => o.status === 'SHIPPED').length,
+    delivered: orders.filter(o => o.status === 'DELIVERED').length,
+    cancelled: orders.filter(o => o.status === 'CANCELLED').length
   };
 
   if (!user) {
@@ -99,7 +125,10 @@ const CustomerDashboard: React.FC = () => {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h1>Welcome, {user.name}!</h1>
+        <div className="welcome-section">
+          <h1>Welcome back, {user?.name}!</h1>
+          <p>Manage your profile and track your orders</p>
+        </div>
         <button onClick={logout} className="logout-btn">
           Logout
         </button>
@@ -110,13 +139,13 @@ const CustomerDashboard: React.FC = () => {
           className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
           onClick={() => setActiveTab('profile')}
         >
-          Profile
+          👤 Profile
         </button>
         <button
           className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
           onClick={() => setActiveTab('orders')}
         >
-          Order History
+          📦 Orders ({orders.length})
         </button>
       </div>
 
@@ -139,7 +168,7 @@ const CustomerDashboard: React.FC = () => {
                 <input
                   type="text"
                   value={profileData.name}
-                  onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, name: e.target.value }))}
                   disabled={!editingProfile}
                   className="form-input"
                 />
@@ -150,7 +179,7 @@ const CustomerDashboard: React.FC = () => {
                 <input
                   type="email"
                   value={profileData.email}
-                  onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                  onChange={(e) => setProfileData(prev => ({ ...prev, email: e.target.value }))}
                   disabled={!editingProfile}
                   className="form-input"
                 />
@@ -167,55 +196,115 @@ const CustomerDashboard: React.FC = () => {
 
         {activeTab === 'orders' && (
           <div className="orders-section">
-            <h2>Order History</h2>
+            <div className="orders-header">
+              <h2>Order History</h2>
+              <div className="order-stats">
+                <div className="stat-item">
+                  <span className="stat-number">{orderStats.total}</span>
+                  <span className="stat-label">Total Orders</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-number">{orderStats.delivered}</span>
+                  <span className="stat-label">Delivered</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-number">{orderStats.pending}</span>
+                  <span className="stat-label">Pending</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="order-filters">
+              <button
+                className={`filter-btn ${orderFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setOrderFilter('all')}
+              >
+                All Orders
+              </button>
+              <button
+                className={`filter-btn ${orderFilter === 'pending' ? 'active' : ''}`}
+                onClick={() => setOrderFilter('pending')}
+              >
+                Pending
+              </button>
+              <button
+                className={`filter-btn ${orderFilter === 'processing' ? 'active' : ''}`}
+                onClick={() => setOrderFilter('processing')}
+              >
+                Processing
+              </button>
+              <button
+                className={`filter-btn ${orderFilter === 'shipped' ? 'active' : ''}`}
+                onClick={() => setOrderFilter('shipped')}
+              >
+                Shipped
+              </button>
+              <button
+                className={`filter-btn ${orderFilter === 'delivered' ? 'active' : ''}`}
+                onClick={() => setOrderFilter('delivered')}
+              >
+                Delivered
+              </button>
+            </div>
             
             {loading ? (
               <div className="loading">
                 <div className="loading-spinner"></div>
                 <p>Loading orders...</p>
               </div>
-            ) : orders.length === 0 ? (
+            ) : filteredOrders.length === 0 ? (
               <div className="no-orders">
-                <h3>No orders yet</h3>
+                <div className="empty-icon">📦</div>
+                <h3>No orders found</h3>
                 <p>Start shopping to see your order history here.</p>
+                <button className="continue-shopping-btn">Continue Shopping</button>
               </div>
             ) : (
               <div className="orders-list">
-                {orders.map((order) => (
+                {filteredOrders.map((order) => (
                   <div key={order.id} className="order-card">
                     <div className="order-header">
                       <div className="order-info">
-                        <h3>Order #{order.id.slice(-8)}</h3>
-                        <p className="order-date">{formatDate(order.createdAt)}</p>
+                        <div className="order-id">
+                          <h3>Order #{order.id.slice(-8)}</h3>
+                          <span className="order-date">{formatDate(order.createdAt)}</span>
+                        </div>
+                        <div className="order-status">
+                          <span className="status-icon">{getStatusIcon(order.status)}</span>
+                          <span
+                            className="status-badge"
+                            style={{ backgroundColor: getStatusColor(order.status) }}
+                          >
+                            {order.status}
+                          </span>
+                        </div>
                       </div>
-                      <div className="order-status">
-                        <span
-                          className="status-badge"
-                          style={{ backgroundColor: getStatusColor(order.status) }}
-                        >
-                          {order.status}
-                        </span>
-                        <p className="order-total">${order.total.toFixed(2)}</p>
+                      <div className="order-total">
+                        <span className="total-label">Total</span>
+                        <span className="total-amount">${order.total.toFixed(2)}</span>
                       </div>
                     </div>
 
                     <div className="order-items">
-                      {order.items.map((item) => (
-                        <div key={item.id} className="order-item">
-                          <div className="item-image">
-                            {item.product.images && item.product.images.length > 0 ? (
-                              <img src={item.product.images[0]} alt={item.product.name} />
-                            ) : (
-                              <div className="no-image">No Image</div>
-                            )}
+                      <h4>Order Items ({order.items.length})</h4>
+                      <div className="items-grid">
+                        {order.items.map((item) => (
+                          <div key={item.id} className="order-item">
+                            <div className="item-image">
+                              {item.product.images && item.product.images.length > 0 ? (
+                                <img src={item.product.images[0]} alt={item.product.name} />
+                              ) : (
+                                <div className="no-image">No Image</div>
+                              )}
+                            </div>
+                            <div className="item-details">
+                              <h5>{item.product.name}</h5>
+                              <p>Quantity: {item.quantity}</p>
+                              <p>Price: ${item.price.toFixed(2)}</p>
+                            </div>
                           </div>
-                          <div className="item-details">
-                            <h4>{item.product.name}</h4>
-                            <p>Quantity: {item.quantity}</p>
-                            <p>Price: ${item.price.toFixed(2)}</p>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
                 ))}
