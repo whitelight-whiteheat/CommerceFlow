@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { apiClient, getErrorMessage } from '../utils/errorHandler';
+import { apiClient, getErrorMessage, logError } from '../utils/errorHandler';
 
 // interface for User
 interface User {
@@ -37,39 +37,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // check if token is in local storage
   useEffect(() => {
     const token = localStorage.getItem('token');
-    console.log('AuthContext: Checking for token:', token ? 'Token found' : 'No token');
     
     if (token) {
       // set default authorization header
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      console.log('AuthContext: Set Authorization header');
       
       // verify token by getting user profile
       apiClient.get('/users/profile')
         .then(response => {
-          console.log('AuthContext: User profile fetched successfully:', response.data);
           setUser(response.data);
         })
         .catch((error) => {
-          console.error('AuthContext: Failed to fetch user profile:', error);
-          console.error('AuthContext: Error status:', error.response?.status);
-          console.error('AuthContext: Error message:', error.response?.data?.message);
+          logError(error, 'AuthContext');
           
           // Clear invalid token and redirect to login
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           delete apiClient.defaults.headers.common['Authorization'];
-          
-          // If it's an invalid token error, show a user-friendly message
-          if (error.response?.status === 401 || error.response?.data?.message?.includes('Invalid token')) {
-            console.log('AuthContext: Invalid token detected, user needs to login again');
-          }
         })
         .finally(() => {
           setLoading(false);
         });
     } else {
-      console.log('AuthContext: No token found, user not authenticated');
       setLoading(false);
     }
   }, []);

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { apiClient } from '../utils/api';
 import { useAuth } from './AuthContext';
 import { toastManager } from '../utils/toast';
+import { logError } from '../utils/errorHandler';
 
 // Define the CartItem interface
 interface CartItem {
@@ -61,21 +62,16 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   const refreshCart = useCallback(async () => {
     if (!isAuthenticated) {
-      console.log('CartContext: User not authenticated, skipping cart fetch');
       setCart(null);
       return;
     }
 
     try {
-      console.log('CartContext: Fetching cart for authenticated user');
       setLoading(true);
       const response = await apiClient.get('/cart');
-      console.log('CartContext: Cart fetched successfully:', response.data);
       setCart(response.data);
     } catch (error: any) {
-      console.error('CartContext: Failed to fetch cart:', error);
-      console.error('CartContext: Error response:', error.response?.data);
-      console.error('CartContext: Error status:', error.response?.status);
+      logError(error, 'CartContext');
       setCart(null);
     } finally {
       setLoading(false);

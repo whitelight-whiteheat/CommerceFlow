@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { handleAsync } from '../utils/errorHandler';
+import { toastManager } from '../utils/toast';
 import './ShoppingCart.css';
 
+// shopping cart
 const ShoppingCart: React.FC = () => {
   const { cart, loading, updateQuantity, removeFromCart, clearCart, getCartTotal } = useCart();
   const { isAuthenticated } = useAuth();
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
-  const [showOrderSummary, setShowOrderSummary] = useState(false);
 
+// not authenticated
   if (!isAuthenticated) {
     return (
       <div className="cart-container">
@@ -20,7 +23,7 @@ const ShoppingCart: React.FC = () => {
       </div>
     );
   }
-
+// loading
   if (loading) {
     return (
       <div className="cart-container">
@@ -31,7 +34,7 @@ const ShoppingCart: React.FC = () => {
       </div>
     );
   }
-
+// empty cart
   if (!cart || cart.items.length === 0) {
     return (
       <div className="cart-container">
@@ -44,54 +47,67 @@ const ShoppingCart: React.FC = () => {
       </div>
     );
   }
-
+// update quantity
   const handleQuantityChange = async (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
     
     setUpdatingItems(prev => new Set(prev).add(itemId));
-    try {
-      await updateQuantity(itemId, newQuantity);
-    } catch (error: any) {
-      alert(error.message);
-    } finally {
-      setUpdatingItems(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(itemId);
-        return newSet;
-      });
+    const { error } = await handleAsync(
+      () => updateQuantity(itemId, newQuantity),
+      'ShoppingCart.handleQuantityChange'
+    );
+    
+    if (error) {
+      toastManager.error(error.message);
     }
+    
+    setUpdatingItems(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(itemId);
+      return newSet;
+    });
   };
-
+// remove item
   const handleRemoveItem = async (itemId: string) => {
     if (window.confirm('Are you sure you want to remove this item from your cart?')) {
-      try {
-        await removeFromCart(itemId);
-      } catch (error: any) {
-        alert(error.message);
+      const { error } = await handleAsync(
+        () => removeFromCart(itemId),
+        'ShoppingCart.handleRemoveItem'
+      );
+      
+      if (error) {
+        toastManager.error(error.message);
+      } else {
+        toastManager.success('Item removed from cart');
       }
     }
   };
-
+// clear cart
   const handleClearCart = async () => {
     if (window.confirm('Are you sure you want to clear your entire cart?')) {
-      try {
-        await clearCart();
-      } catch (error: any) {
-        alert(error.message);
+      const { error } = await handleAsync(
+        () => clearCart(),
+        'ShoppingCart.handleClearCart'
+      );
+      
+      if (error) {
+        toastManager.error(error.message);
+      } else {
+        toastManager.success('Cart cleared successfully');
       }
     }
   };
-
+// checkout
   const handleCheckout = () => {
     // This would typically navigate to checkout or create order
-    alert('Proceeding to checkout...');
+    toastManager.info('Proceeding to checkout...');
   };
-
+// subtotal
   const subtotal = getCartTotal();
   const shipping = 0; // Free shipping
   const tax = subtotal * 0.08; // 8% tax
   const total = subtotal + shipping + tax;
-
+// return
   return (
     <div className="cart-container">
       <div className="cart-header">

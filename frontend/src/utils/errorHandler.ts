@@ -1,8 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import { apiClient } from './api';
 
-// Error types
-export interface ApiError {
+// Error types for API responses
+export interface ApiErrorResponse {
   message: string;
   statusCode?: number;
   timestamp?: string;
@@ -22,9 +22,9 @@ export class ApiErrorHandler extends Error {
 }
 
 // Centralized error handler for API calls
-export const handleApiError = (error: unknown): ApiError => {
+export const handleApiError = (error: unknown): ApiErrorResponse => {
   if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError<ApiError>;
+    const axiosError = error as AxiosError<ApiErrorResponse>;
     
     // Network error
     if (!axiosError.response) {
@@ -92,32 +92,87 @@ apiClient.interceptors.response.use(
   }
 );
 
-// Utility function to show user-friendly error messages
+// Error types for better error handling
+export class AppError extends Error {
+  public status?: number;
+  public code?: string;
+
+  constructor(message: string, status?: number, code?: string) {
+    super(message);
+    this.name = 'AppError';
+    this.status = status;
+    this.code = code;
+  }
+}
+
+// Parse API errors
+export const parseApiError = (error: unknown): AppError => {
+  if (error instanceof AppError) {
+    return error;
+  }
+
+  if (error instanceof Error) {
+    return new AppError(error.message);
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const apiError = error as ApiErrorResponse;
+    return new AppError(
+      apiError.message || 'An unexpected error occurred',
+      apiError.statusCode,
+      undefined
+    );
+  }
+
+  return new AppError('An unexpected error occurred');
+};
+
+// Get user-friendly error messages
 export const getErrorMessage = (error: unknown): string => {
-  const apiError = handleApiError(error);
+  const appError = parseApiError(error);
   
-  // Map common error codes to user-friendly messages
-  switch (apiError.statusCode) {
-    case 400:
-      return 'Invalid request. Please check your input and try again.';
-    case 401:
-      return 'Authentication required. Please log in again.';
-    case 403:
-      return 'Access denied. You don\'t have permission to perform this action.';
-    case 404:
-      return 'The requested resource was not found.';
-    case 409:
-      return 'This resource already exists.';
-    case 422:
-      return 'Validation error. Please check your input.';
-    case 429:
-      return 'Too many requests. Please try again later.';
-    case 500:
-      return 'Server error. Please try again later.';
-    case 503:
-      return 'Service temporarily unavailable. Please try again later.';
+  // Handle specific error codes
+  switch (appError.code) {
+    case 'UNAUTHORIZED':
+      return 'Please log in to continue';
+    case 'FORBIDDEN':
+      return 'You do not have permission to perform this action';
+    case 'NOT_FOUND':
+      return 'The requested resource was not found';
+    case 'VALIDATION_ERROR':
+      return 'Please check your input and try again';
+    case 'NETWORK_ERROR':
+      return 'Network error. Please check your connection and try again';
     default:
-      return apiError.message;
+      return appError.message;
+  }
+};
+
+// Log errors for debugging (only in development)
+export const logError = (error: unknown, context?: string): void => {
+  if (process.env.NODE_ENV === 'development') {
+    const appError = parseApiError(error);
+    console.error(`[${context || 'App'}] Error:`, {
+      message: appError.message,
+      status: appError.status,
+      code: appError.code,
+      stack: appError.stack
+    });
+  }
+};
+
+// Handle async operations with proper error handling
+export const handleAsync = async <T>(
+  asyncFn: () => Promise<T>,
+  context?: string
+): Promise<{ data: T | null; error: AppError | null }> => {
+  try {
+    const data = await asyncFn();
+    return { data, error: null };
+  } catch (error) {
+    const appError = parseApiError(error);
+    logError(appError, context);
+    return { data: null, error: appError };
   }
 };
 
