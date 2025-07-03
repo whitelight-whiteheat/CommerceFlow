@@ -4,10 +4,15 @@ A production-ready, full-stack ecommerce platform built with modern technologies
 
 ## 🚀 Live Demo
 
-- **Frontend**: [http://localhost:3000](http://localhost:3000)
-- **Backend API**: [http://localhost:3001](http://localhost:3001)
-- **API Documentation**: [http://localhost:3001/api-docs](http://localhost:3001/api-docs)
-- **Health Check**: [http://localhost:3001/health](http://localhost:3001/health)
+- **Frontend**: [https://ecommercemvp-production.up.railway.app/](https://ecommercemvp-production.up.railway.app/)
+- **Backend API**: [https://resourceful-connection-production.up.railway.app/](https://resourceful-connection-production.up.railway.app/)
+- **Admin Panel**: [https://ecommercemvp-production.up.railway.app/admin](https://ecommercemvp-production.up.railway.app/admin)
+- **API Documentation**: [https://resourceful-connection-production.up.railway.app/api-docs](https://resourceful-connection-production.up.railway.app/api-docs)
+- **Health Check**: [https://resourceful-connection-production.up.railway.app/health](https://resourceful-connection-production.up.railway.app/health)
+
+### Demo Credentials
+- **Admin**: admin@example.com / admin123
+- **Customer**: Register a new account to test the shopping experience
 
 ## ✨ Key Features
 
