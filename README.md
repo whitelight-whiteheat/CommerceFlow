@@ -310,10 +310,11 @@ See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed production deploymen
 
 ## 📚 Documentation
 
+- [📚 Documentation Index](docs/README.md) - Complete documentation overview
 - [API Documentation](http://localhost:3001/api-docs) - Swagger/OpenAPI docs
-- [Deployment Guide](DEPLOYMENT_GUIDE.md) - Production deployment
-- [Portfolio Summary](PORTFOLIO_SUMMARY.md) - Project overview
-- [Development Timeline](DEVELOPMENT_TIMELINE.md) - Project phases
+- [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) - Production deployment
+- [Portfolio Summary](docs/PORTFOLIO_SUMMARY.md) - Project overview
+- [Development Timeline](docs/DEVELOPMENT_TIMELINE.md) - Project phases
 
 ## 🤝 Contributing
 
@@ -331,8 +332,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you encounter any issues or have questions:
 
-1. Check the [documentation](DEPLOYMENT_GUIDE.md)
-2. Review the [troubleshooting guide](DEPLOYMENT_GUIDE.md#troubleshooting)
+1. Check the [📚 Documentation Index](docs/README.md)
+2. Review the [troubleshooting guide](docs/DEPLOYMENT_GUIDE.md#troubleshooting)
 3. Open an issue on GitHub
 
 ## 🏆 Project Status

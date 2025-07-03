@@ -108,6 +108,10 @@ temp/
 # Prisma
 prisma/migrations/
 
+# Workspace
+node_modules/
+package-lock.json
+
 # Testing
 coverage/
 .nyc_output/
