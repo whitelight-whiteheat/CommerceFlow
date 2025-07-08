@@ -1,18 +1,9 @@
-// Load environment variables from .env file
-require('dotenv').config();
+// Load environment variables (with fallback for dotenv issues)
+const { initializeEnvironment } = require('./utils/envLoader');
+initializeEnvironment();
 
 // Import centralized configuration
-const { ENV_CONFIG, validateEnvironment, isProduction } = require('./config/constants');
-
-// Validate environment
-try {
-  validateEnvironment();
-  console.log('✅ All required environment variables are set');
-  console.log('JWT_SECRET at startup:', ENV_CONFIG.JWT_SECRET ? '***SET***' : 'NOT SET');
-} catch (error) {
-  console.error('❌ Environment validation failed:', error.message);
-  process.exit(1);
-}
+const { ENV_CONFIG, isProduction } = require('./config/constants');
 const app = require('./app');
 
 // Start server

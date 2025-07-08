@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import AnimatedTitle from './AnimatedTitle';
 import './CustomerLogin.css';
 
 interface CustomerLoginProps {
@@ -29,9 +30,19 @@ const CustomerLogin: React.FC<CustomerLoginProps> = ({ onSwitchToRegister }) => 
 
   return (
     <div className="customer-login-container">
+      <div className="login-header">
+        <AnimatedTitle />
+        <div className="login-subtitle">
+          <p>Your Professional E-Commerce Solution</p>
+          <p className="login-tagline">Secure • Fast • Reliable</p>
+        </div>
+      </div>
+      
       <div className="customer-login-card">
-        <h2>Welcome Back</h2>
-        <p className="subtitle">Sign in to your account</p>
+        <div className="card-header">
+          <h2>Welcome Back</h2>
+          <p>Sign in to your account</p>
+        </div>
         
         {error && <div className="error-message">{error}</div>}
         

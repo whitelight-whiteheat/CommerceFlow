@@ -1,0 +1,92 @@
+.animated-title-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+  height: 120px;
+}
+
+.animated-title {
+  font-size: 4rem;
+  font-weight: bold;
+  /* Pure white text */
+  color: #ffffff;
+  text-align: center;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  letter-spacing: -0.02em;
+}
+
+.title-char {
+  display: inline-block;
+  animation: titleFloat 3s ease-in-out infinite;
+  transform-style: preserve-3d;
+  /* Professional shadow */
+  text-shadow: 2px 2px 4px rgba(30, 58, 138, 0.3);
+  transition: all 0.3s ease;
+}
+
+.title-char:hover {
+  transform: scale(1.2) rotateY(180deg);
+  /* Professional blue on hover */
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+}
+
+@keyframes titleFloat {
+  0%, 100% {
+    transform: translateY(0px) rotateY(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotateY(5deg);
+  }
+}
+
+@keyframes colorShift {
+  0%, 100% {
+    /* Professional blue */
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(30, 58, 138, 0.3);
+  }
+  25% {
+    /* Professional medium blue */
+    color: #fdfeff;
+    text-shadow: 2px 2px 8px rgba(30, 64, 175, 0.5);
+  }
+  50% {
+    /* Professional bright blue */
+    color: #ffffff;
+    text-shadow: 2px 2px 12px rgba(59, 130, 246, 0.7);
+  }
+  75% {
+    /* Professional dark blue */
+    color: #ffffff;
+    text-shadow: 2px 2px 8px rgba(37, 99, 235, 0.5);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .animated-title {
+    font-size: 2.5rem;
+    color: #ffffff;
+  }
+  
+  .animated-title-container {
+    height: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .animated-title {
+    font-size: 2rem;
+    color: #ffffff;
+  }
+  
+  .animated-title-container {
+    height: 60px;
+  }
+} 
