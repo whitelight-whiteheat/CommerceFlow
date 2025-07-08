@@ -44,14 +44,10 @@ const AdminApp: React.FC = () => {
 const CustomerApp: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
-  console.log('CustomerApp Debug:', { isAuthenticated });
-
   if (!isAuthenticated) {
-    console.log('User not authenticated, showing CustomerAuth');
     return <CustomerAuth />;
   }
 
-  console.log('User authenticated, showing CustomerLayout with routes');
   return (
     <CustomerLayout>
       <Routes>
@@ -66,9 +62,7 @@ const CustomerApp: React.FC = () => {
 };
 
 const AppContent: React.FC = () => {
-  const { loading, isAuthenticated, isAdmin } = useAuth();
-
-  console.log('AppContent Debug:', { loading, isAuthenticated, isAdmin, pathname: window.location.pathname });
+  const { loading } = useAuth();
 
   if (loading) {
     return (
@@ -86,8 +80,6 @@ const AppContent: React.FC = () => {
 
   // Check if user is trying to access admin routes
   const isAdminRoute = window.location.pathname.startsWith('/admin');
-  
-  console.log('Route Debug:', { isAdminRoute, pathname: window.location.pathname });
   
   if (isAdminRoute) {
     return <AdminApp />;

@@ -42,20 +42,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // set default authorization header
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
-      // verify token by getting user profile with timeout
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 5000)
-      );
-      
-      Promise.race([
-        apiClient.get('/users/profile'),
-        timeoutPromise
-      ])
-        .then((response: any) => {
+      // verify token by getting user profile
+      apiClient.get('/users/profile')
+        .then(response => {
           setUser(response.data);
         })
         .catch((error) => {
-          console.log('Token verification failed, clearing auth:', error.message);
+          logError(error, 'AuthContext');
           
           // Clear invalid token and redirect to login
           localStorage.removeItem('token');
