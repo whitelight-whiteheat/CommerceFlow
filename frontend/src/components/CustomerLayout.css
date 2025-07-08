@@ -30,9 +30,10 @@
 
 .logo h1 {
   margin: 0;
-  color: #333;
+  color: #1e3a8a;
   font-size: 24px;
   font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 .nav-menu {
@@ -58,8 +59,8 @@
 }
 
 .nav-link.active {
-  color: #007bff;
-  background: #e3f2fd;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
 }
 
 .user-menu {
@@ -95,17 +96,18 @@
 }
 
 .login-btn {
-  background: #007bff;
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
   color: white;
   text-decoration: none;
   padding: 10px 20px;
   border-radius: 6px;
-  font-weight: 500;
-  transition: background-color 0.2s;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
 .login-btn:hover {
-  background: #0056b3;
+  background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+  transform: translateY(-1px);
 }
 
 .customer-main {

@@ -1,10 +1,8 @@
 import axios from 'axios';
 
-// Get API base URL from environment variable or default to localhost in development
+// Get API base URL from environment variable or default to Railway deployment
 const API_BASE_URL = process.env.REACT_APP_API_URL || 
-  (process.env.NODE_ENV === 'development' 
-    ? 'http://localhost:3001/api' 
-    : 'https://resourceful-connection-production.up.railway.app/api');
+  'https://resourceful-connection-production.up.railway.app/api';
 
 // Create axios instance with default configuration
 export const apiClient = axios.create({
@@ -33,10 +31,13 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error('API Error:', {
+    console.error('API Error Details:', {
       status: error.response?.status,
-      message: error.response?.data?.message,
-      url: error.config?.url
+      statusText: error.response?.statusText,
+      message: error.response?.data?.message || error.message,
+      url: error.config?.url,
+      method: error.config?.method,
+      timeout: error.code === 'ECONNABORTED' ? 'Request timeout' : 'No timeout'
     });
     
     if (error.response?.status === 401) {

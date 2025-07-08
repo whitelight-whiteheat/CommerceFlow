@@ -22,18 +22,19 @@
 
 .cart-title h1 {
   margin: 0;
-  color: #333;
+  color: #1e3a8a;
   font-size: 28px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 .cart-count {
-  background: #667eea;
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
   color: white;
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .clear-cart-btn {
@@ -195,7 +196,7 @@
 }
 
 .quantity-btn:hover:not(:disabled) {
-  background: #667eea;
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
   color: white;
 }
 
