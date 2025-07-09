@@ -3,14 +3,26 @@ const router = express.Router();
 const prisma = require('../config/database');
 
 /**
- * Basic health check endpoint
+ * Basic health check endpoint - Railway health check
  */
 router.get('/', (req, res) => {
   res.status(200).json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
     service: 'CommerFlow API',
-    version: '1.0.0'
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+/**
+ * Simple health check for Railway (no database dependency)
+ */
+router.get('/simple', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    message: 'Service is running',
+    timestamp: new Date().toISOString()
   });
 });
 
