@@ -1,3 +1,17 @@
+:root {
+  --primary-blue: #1a237e;
+  --primary-blue-light: #3949ab;
+  --primary-blue-dark: #0d1333;
+  --accent-blue: #1976d2;
+  --background: #f5f7fa;
+  --surface: #ffffff;
+  --text-primary: #1a237e;
+  --text-secondary: #5c6bc0;
+  --border: #e3e6f0;
+  --error: #d32f2f;
+  --success: #388e3c;
+}
+
 /* Reset and base styles */
 * {
   margin: 0;

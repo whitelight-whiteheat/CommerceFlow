@@ -81,6 +81,7 @@ const getProducts = async (req, res) => {
         query = queryUtils.addPagination(query, page, limit);
         query = queryUtils.addSorting(query, sortBy, sortOrder);
 
+        console.log('Prisma query:', JSON.stringify(query, null, 2));
         // Execute queries
         const [total, products] = await Promise.all([
             prisma.product.count({ where: query.where }),
