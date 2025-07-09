@@ -26,7 +26,14 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "analyze": "node scripts/optimize-frontend.js analyze",
+    "optimize": "node scripts/optimize-frontend.js all",
+    "bundle": "node scripts/optimize-frontend.js bundle",
+    "deps": "node scripts/optimize-frontend.js deps",
+    "images": "node scripts/optimize-frontend.js images",
+    "css": "node scripts/optimize-frontend.js css",
+    "report": "node scripts/optimize-frontend.js report"
   },
   "eslintConfig": {
     "extends": [

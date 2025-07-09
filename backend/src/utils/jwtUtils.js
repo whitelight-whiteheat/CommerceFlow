@@ -16,10 +16,7 @@ const getJwtSecret = () => {
   return ENV_CONFIG.JWT_SECRET;
 };
 
-// Remove debug logging in production
-if (ENV_CONFIG.NODE_ENV === 'development') {
-  console.log('[JWT] Using JWT secret from environment:', ENV_CONFIG.JWT_SECRET ? 'Environment variable' : 'NOT SET');
-}
+// JWT secret configuration
 
 // Generate JWT token
 const generateToken = (payload) => {
@@ -41,11 +38,6 @@ const generateToken = (payload) => {
 const verifyToken = (token) => {
   try {
     const secret = getJwtSecret();
-      // Remove debug logging in production
-  if (ENV_CONFIG.NODE_ENV === 'development') {
-    console.log('[JWT] Verifying token with secret:', secret ? 'SET' : 'NOT SET');
-    console.log('[JWT] Token to verify:', token.substring(0, 20) + '...');
-  }
     
     return jwt.verify(token, secret, {
       issuer: JWT_CONFIG.issuer,
@@ -53,16 +45,9 @@ const verifyToken = (token) => {
       algorithms: ['HS256']
     });
   } catch (error) {
-    console.error('[JWT] Verification failed:', error.name, error.message);
-    
     if (error.name === 'TokenExpiredError') {
       throw new Error('Token has expired');
     } else if (error.name === 'JsonWebTokenError') {
-      // Provide more specific error for debugging
-      console.error('[JWT] Invalid token details:', {
-        error: error.message,
-        tokenPreview: token ? token.substring(0, 20) + '...' : 'null'
-      });
       throw new Error('Invalid token - please login again');
     } else if (error.name === 'NotBeforeError') {
       throw new Error('Token not active');

@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-// Get API base URL from environment variable or default to localhost in development
+// Get API base URL from environment variable with fallback
 const API_BASE_URL = process.env.REACT_APP_API_URL || 
   (process.env.NODE_ENV === 'development' 
     ? 'http://localhost:3001/api' 
-    : 'https://resourceful-connection-production.up.railway.app/api');
+    : '/api'); // Fallback to relative path for production
 
 // Create axios instance with default configuration
 export const apiClient = axios.create({

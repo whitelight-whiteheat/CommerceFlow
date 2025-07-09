@@ -108,6 +108,26 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Portfolio Demo Notice */}
+      <div className="card" style={{ backgroundColor: '#fef3c7', border: '2px solid #f59e0b' }}>
+        <div className="card-header">
+          <h2 className="card-title" style={{ color: '#92400e' }}>
+            🎯 Portfolio Demo - Admin Access
+          </h2>
+        </div>
+        <div style={{ color: '#92400e', fontSize: '0.95rem' }}>
+          <p><strong>Welcome to the CommerFlow E-commerce Admin Dashboard!</strong></p>
+          <p>This is a portfolio demonstration project. The admin credentials are intentionally set to defaults for easy access:</p>
+          <ul style={{ marginTop: '0.5rem', marginBottom: '0.5rem', paddingLeft: '1.5rem' }}>
+            <li><strong>Email:</strong> admin@example.com</li>
+            <li><strong>Password:</strong> admin123</li>
+          </ul>
+          <p style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>
+            Feel free to explore all admin features including user management, product catalog, order processing, and analytics.
+          </p>
+        </div>
+      </div>
+
       <div className="card">
         <div className="card-header">
           <h1 className="card-title">Dashboard Overview</h1>

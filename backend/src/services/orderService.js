@@ -45,9 +45,6 @@ class OrderService {
     // TODO: Implement WebSocket notification
     // This will be implemented when we add WebSocket support
     
-    // For now, we'll just log the status change
-    console.log(`Order ${order.id} status changed to ${order.status}`);
-    
     // TODO: Send email notification
     // This will be implemented when we add email service
   }

@@ -16,7 +16,7 @@ const createAdminUser = () => {
   console.log('Password:', adminUser.password);
   console.log('Role:', adminUser.role);
   console.log('\n📝 Use these credentials to login to the admin dashboard');
-  console.log('🌐 Frontend URL: http://localhost:3002');
+  console.log('🌐 Frontend URL: http://localhost:3000/admin');
   console.log('🔧 Backend URL: http://localhost:3001');
   
   return adminUser;
@@ -33,7 +33,7 @@ const loginAdmin = (email, password) => {
         email: adminUser.email, 
         role: adminUser.role 
       },
-      process.env.JWT_SECRET || 'b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b',
+              process.env.JWT_SECRET || 'portfolio-demo-secret',
       { expiresIn: '24h' }
     );
     
@@ -56,5 +56,5 @@ loginAdmin('admin@example.com', 'admin123');
 console.log('\n📋 Instructions:');
 console.log('1. Make sure your backend server is running on port 3001');
 console.log('2. Make sure your frontend is running on port 3002');
-console.log('3. Go to http://localhost:3002');
+console.log('3. Go to http://localhost:3000/admin');
 console.log('4. Login with: admin@example.com / admin123'); 

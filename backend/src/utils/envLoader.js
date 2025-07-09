@@ -11,16 +11,13 @@ function loadEnvironmentVariables() {
   
   try {
     if (!fs.existsSync(envPath)) {
-      console.warn('⚠️  .env file not found at:', envPath);
       return false;
     }
 
     const envContent = fs.readFileSync(envPath, 'utf8');
     const lines = envContent.split('\n');
     
-    let loadedCount = 0;
-    
-    lines.forEach((line, index) => {
+    lines.forEach((line) => {
       // Skip empty lines and comments
       const trimmedLine = line.trim();
       if (!trimmedLine || trimmedLine.startsWith('#')) {
@@ -30,7 +27,6 @@ function loadEnvironmentVariables() {
       // Parse key=value pairs
       const equalIndex = trimmedLine.indexOf('=');
       if (equalIndex === -1) {
-        console.warn(`⚠️  Invalid env line ${index + 1}: ${trimmedLine}`);
         return;
       }
       
@@ -43,15 +39,13 @@ function loadEnvironmentVariables() {
       // Set environment variable if not already set
       if (!process.env[key]) {
         process.env[key] = cleanValue;
-        loadedCount++;
       }
     });
     
-    console.log(`✅ Loaded ${loadedCount} environment variables from .env file`);
     return true;
     
   } catch (error) {
-    console.error('❌ Error loading .env file:', error.message);
+    console.error('Error loading .env file:', error.message);
     return false;
   }
 }
@@ -68,11 +62,10 @@ function validateRequiredEnvVars() {
   const missing = required.filter(key => !process.env[key]);
   
   if (missing.length > 0) {
-    console.error('❌ Missing required environment variables:', missing.join(', '));
+    console.error('Missing required environment variables:', missing.join(', '));
     return false;
   }
   
-  console.log('✅ All required environment variables are set');
   return true;
 }
 
@@ -80,14 +73,10 @@ function validateRequiredEnvVars() {
  * Initialize environment variables
  */
 function initializeEnvironment() {
-  console.log('🔧 Initializing environment variables...');
-  
   // Try to load with dotenv first
   try {
     require('dotenv').config();
-    console.log('✅ dotenv loaded successfully');
   } catch (error) {
-    console.warn('⚠️  dotenv failed, using manual loader:', error.message);
     loadEnvironmentVariables();
   }
   
@@ -95,11 +84,10 @@ function initializeEnvironment() {
   const isValid = validateRequiredEnvVars();
   
   if (!isValid) {
-    console.error('❌ Environment initialization failed');
+    console.error('Environment initialization failed');
     process.exit(1);
   }
   
-  console.log('✅ Environment initialization complete');
   return true;
 }
 

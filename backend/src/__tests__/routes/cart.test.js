@@ -3,7 +3,8 @@ const app = require('../../src/app');
 const { createTestUser, createTestCategory, createTestProduct, createTestCart } = require('../../test/setup');
 const { PrismaClient } = require('@prisma/client');
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = 'b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'portfolio-demo-secret';
 
 const prisma = new PrismaClient();
 

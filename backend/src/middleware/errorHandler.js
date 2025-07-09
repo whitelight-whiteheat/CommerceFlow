@@ -65,7 +65,12 @@ const logError = (err, req) => {
     }
   };
   
-  console.error('ERROR LOG:', JSON.stringify(errorLog, null, 2));
+  // Use structured logging in production
+  if (process.env.NODE_ENV === 'production') {
+    console.error(JSON.stringify(errorLog));
+  } else {
+    console.error(`[ERROR] ${err.message} - ${req.method} ${req.originalUrl}`);
+  }
 };
 
 // Error handling middleware
@@ -75,8 +80,6 @@ const errorHandler = (err, req, res, next) => {
 
   // Log all errors
   logError(err, req);
-  // Log the full error object for debugging
-  console.error('FULL ERROR OBJECT:', err);
 
   // Development error response
   if (process.env.NODE_ENV === 'development') {
@@ -100,7 +103,7 @@ const errorHandler = (err, req, res, next) => {
     } 
     // Programming or other unknown error: don't leak error details
     else {
-      console.error('UNEXPECTED ERROR 💥', err);
+      console.error('Unexpected error:', err.message);
       res.status(500).json({
         status: 'error',
         message: 'Something went wrong. Please try again later.',

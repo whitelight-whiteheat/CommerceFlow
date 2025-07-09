@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, getProfile, updateProfile, getOrderHistory } = require('../controllers/userController');
+const { register, login, getProfile, updateProfile, getOrderHistory, getAllUsers } = require('../controllers/userController');
 const { registerValidation, loginValidation, profileUpdateValidation } = require('../middleware/validators');
 const { auth } = require('../middleware/auth');
+const { validateAdminRole } = require('../middleware/validators');
 
 /**
  * @swagger
@@ -235,5 +236,8 @@ router.put('/profile', auth, profileUpdateValidation, updateProfile);
  *         description: Authentication required
  */
 router.get('/orders', auth, getOrderHistory);
+
+// Admin: Get all users
+router.get('/', auth, validateAdminRole, getAllUsers);
 
 module.exports = router; 

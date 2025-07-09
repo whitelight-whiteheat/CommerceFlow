@@ -3,11 +3,11 @@ const router = express.Router();
 const { auth } = require('../middleware/auth');
 const { validateAdminRole } = require('../middleware/validators');
 const { PrismaClient } = require('@prisma/client');
+const Logger = require('../utils/logger');
 
 const prisma = new PrismaClient();
 
-// Debug: Check if validateAdminRole is imported correctly
-console.log('validateAdminRole:', typeof validateAdminRole, validateAdminRole);
+// Admin routes configuration
 
 const {
   getDashboardStats,
@@ -77,7 +77,7 @@ router.get('/products', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get admin products error:', error);
+    Logger.error('Get admin products error', error);
     res.status(500).json({ message: 'Error fetching products' });
   }
 });
@@ -90,7 +90,7 @@ router.get('/categories', async (req, res) => {
     });
     res.json(categories);
   } catch (error) {
-    console.error('Get categories error:', error);
+    Logger.error('Get categories error', error);
     res.status(500).json({ message: 'Error fetching categories' });
   }
 });

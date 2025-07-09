@@ -122,7 +122,7 @@ const completeSetup = async () => {
       console.log('📋 Next steps:');
       console.log('   1. Start the backend server: npm start');
       console.log('   2. Start the frontend: cd ../frontend && npm start');
-      console.log('   3. Go to http://localhost:3002');
+      console.log('   3. Go to http://localhost:3000/admin');
       console.log('   4. Login with: admin@example.com / admin123');
     }
 
@@ -156,7 +156,7 @@ const testAdminLogin = async (email, password) => {
     // Generate token
     const token = jwt.sign(
       { id: user.id },
-      process.env.JWT_SECRET || 'b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b',
+              process.env.JWT_SECRET || 'portfolio-demo-secret',
       { expiresIn: '7d' }
     );
 

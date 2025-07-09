@@ -29,8 +29,8 @@ In your Railway backend service, add these environment variables:
 # REQUIRED - Database (Railway PostgreSQL service)
 DATABASE_URL=postgresql://postgres:${PASSWORD}@${HOST}:${PORT}/${DATABASE}
 
-# REQUIRED - JWT Secret (must be this exact value)
-JWT_SECRET=b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b
+# REQUIRED - JWT Secret (generate a secure secret)
+JWT_SECRET=your-secure-jwt-secret-at-least-32-characters-long
 
 # JWT Configuration
 JWT_EXPIRES_IN=24h
@@ -118,9 +118,9 @@ NODE_ENV=production
 
 1. **Environment Validation Failed**
    ```
-   ❌ Environment validation failed: JWT_SECRET must be set to the required value
+   ❌ Environment validation failed: JWT_SECRET must be at least 32 characters long for security
    ```
-   **Solution:** Ensure `JWT_SECRET` is set to the exact required value
+   **Solution:** Ensure `JWT_SECRET` is at least 32 characters long and properly set
 
 2. **Database Connection Failed**
    ```
@@ -156,7 +156,7 @@ railway link
 railway logs
 
 # Set environment variables
-railway variables set JWT_SECRET=b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b
+railway variables set JWT_SECRET=your-secure-jwt-secret-at-least-32-characters-long
 
 # Deploy
 railway up
@@ -164,7 +164,7 @@ railway up
 
 ## 🔒 Security Checklist
 
-- ✅ **JWT_SECRET** set to required value
+- ✅ **JWT_SECRET** set to secure value (at least 32 characters)
 - ✅ **ADMIN_EMAIL** and **ADMIN_PASSWORD** changed from defaults
 - ✅ **DATABASE_URL** from Railway PostgreSQL service
 - ✅ **FRONTEND_URL** and **CORS_ORIGIN** match your frontend URL

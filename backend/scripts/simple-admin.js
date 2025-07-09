@@ -22,7 +22,7 @@ const token = jwt.sign(
     email: adminUser.email, 
     role: adminUser.role 
   },
-  process.env.JWT_SECRET || 'b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b',
+  process.env.JWT_SECRET || 'portfolio-demo-secret',
   { expiresIn: '24h' }
 );
 
@@ -37,7 +37,7 @@ console.log(token);
 console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
 console.log('\n📋 Instructions:');
-console.log('1. Open your browser and go to: http://localhost:3002');
+console.log('1. Open your browser and go to: http://localhost:3000/admin');
 console.log('2. Use these credentials to login:');
 console.log('   Email: admin@example.com');
 console.log('   Password: admin123');
@@ -45,7 +45,7 @@ console.log('3. If login still fails, the backend might need database setup');
 console.log('4. Make sure both frontend (port 3002) and backend (port 3001) are running');
 
 console.log('\n🔧 Troubleshooting:');
-console.log('- Frontend URL: http://localhost:3002');
+console.log('- Frontend URL: http://localhost:3000/admin');
 console.log('- Backend URL: http://localhost:3001');
 console.log('- Check if both servers are running');
 console.log('- If database issues persist, we may need to set up PostgreSQL'); 

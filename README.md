@@ -2,16 +2,26 @@
 
 A production-ready, full-stack ecommerce platform built with modern technologies, featuring comprehensive security, performance optimization, and deployment automation.
 
-## 🚀 Live Demo
+## 🎯 Portfolio Demo Project
 
-- **Frontend**: [https://ecommercemvp-production.up.railway.app/](https://ecommercemvp-production.up.railway.app/)
-- **Backend API**: [https://resourceful-connection-production.up.railway.app/](https://resourceful-connection-production.up.railway.app/)
-- **Admin Panel**: [https://ecommercemvp-production.up.railway.app/admin](https://ecommercemvp-production.up.railway.app/admin)
+**CommerFlow** is a full-stack e-commerce platform built as a portfolio demonstration project. This project showcases modern web development skills with a focus on **easy access and exploration**.
+
+### 🌟 Key Features
+- **Easy Setup**: Minimal configuration required
+- **Demo Credentials**: Pre-configured for immediate access
+- **Full Feature Set**: Complete e-commerce functionality
+- **Modern Tech Stack**: React, Node.js, PostgreSQL, Docker
+
+### 🚀 Live Demo
+- **Frontend**: [https://your-frontend-service.up.railway.app](https://your-frontend-service.up.railway.app)
+- **Backend API**: [https://resourceful-connection-production.up.railway.app](https://resourceful-connection-production.up.railway.app)
 - **API Documentation**: [https://resourceful-connection-production.up.railway.app/api-docs](https://resourceful-connection-production.up.railway.app/api-docs)
 - **Health Check**: [https://resourceful-connection-production.up.railway.app/health](https://resourceful-connection-production.up.railway.app/health)
 
-### Demo Credentials
+### Demo Credentials (Portfolio Project)
 - **Admin**: admin@example.com / admin123
+  - *These credentials are intentionally set to defaults for easy portfolio access*
+  - *Feel free to explore all admin features including user management, product catalog, and analytics*
 - **Customer**: Register a new account to test the shopping experience
 
 ## ✨ Key Features
@@ -94,8 +104,8 @@ cd CommerceFlow
 
 ### 2. Quick Setup (Recommended)
 ```bash
-# Setup environment files
-npm run setup
+# Setup development environment
+npm run setup:dev
 
 # Install all dependencies
 npm run install:all
@@ -126,8 +136,8 @@ cd backend
 npm install
 
 # Set up environment variables
-cp env.production.example .env
-# Edit .env with your configuration
+npm run setup:dev  # or setup:prod, setup:railway
+# Edit .env with your configuration if needed
 
 # Set up database
 npx prisma migrate dev
@@ -150,16 +160,73 @@ npm start
 
 ## 🔐 Default Credentials
 
-### Admin Access
+### Admin Access (Portfolio Demo)
 - **Email**: admin@example.com
 - **Password**: admin123
-- **URL**: http://localhost:3000/admin
+- **URL**: http://localhost:3000/admin (or your configured frontend URL)
+- **Note**: These credentials are intentionally set to defaults for easy portfolio access and demonstration
 
 ### Customer Access
-- **URL**: http://localhost:3000
+- **URL**: http://localhost:3000 (or your configured frontend URL)
 - **Registration**: Available for new customers
 
+## ⚙️ Environment Configuration
+
+### Quick Environment Setup
+```bash
+# Development environment
+npm run setup:dev
+
+# Production environment
+npm run setup:prod
+
+# Railway deployment
+npm run setup:railway
+
+# Validate environment configuration
+npm run env:validate
+```
+
+### Environment Presets
+The project includes pre-configured environment presets for different deployment scenarios:
+- **Development**: Local development with relaxed security
+- **Production**: Production-ready configuration with security considerations
+- **Railway**: Optimized for Railway deployment platform
+
+### Manual Environment Setup
+```bash
+# Generate environment file from preset
+node env.presets.js dev .env --comments
+
+# Available presets: dev, development, prod, production, railway
+```
+
+### URL Configuration
+The application uses dynamic URL generation based on environment configuration:
+- **Backend API**: Automatically configured based on PORT and HOST
+- **Frontend**: Configurable via FRONTEND_URL environment variable
+- **Admin Dashboard**: Frontend URL + /admin
+- **API Documentation**: Backend URL + /api-docs
+- **Health Check**: Backend URL + /health
+
+To update hardcoded URLs in scripts:
+```bash
+npm run urls:cleanup
+```
+
 ## 🧪 Testing
+
+### Portfolio Demo Test Runner
+```bash
+cd backend
+npm run demo
+```
+This comprehensive test runner demonstrates all major features:
+- Health checks and API documentation
+- Authentication (admin login, user registration)
+- Admin features (dashboard, product management)
+- Customer features (cart, orders)
+- Portfolio demo configuration verification
 
 ### Backend Tests
 ```bash

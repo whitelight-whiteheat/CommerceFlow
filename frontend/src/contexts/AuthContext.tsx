@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { apiClient, getErrorMessage, logError } from '../utils/errorHandler';
+import { apiClient } from '../utils/api';
+import { getErrorMessage, logError } from '../utils/errorHandler';
 
 // interface for User
 interface User {

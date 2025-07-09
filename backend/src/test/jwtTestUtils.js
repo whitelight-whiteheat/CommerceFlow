@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 
-// Use the same JWT secret as the main application
+// Use environment variable for JWT secret, fallback to portfolio demo secret
 const getJwtSecret = () => {
-  return 'b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b';
+  return process.env.JWT_SECRET || 'portfolio-demo-secret';
 };
 
 // Generate test tokens with consistent payload structure

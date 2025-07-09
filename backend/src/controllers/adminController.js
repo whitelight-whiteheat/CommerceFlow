@@ -1,37 +1,17 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const Logger = require('../utils/logger');
 
 // Get dashboard overview statistics
 const getDashboardStats = async (req, res) => {
   try {
-    // Debug: Log user information
-    console.log('Dashboard request - User:', {
-      id: req.user.id,
-      email: req.user.email,
-      role: req.user.role
-    });
-
-    console.log('Starting dashboard stats calculation...');
-
-    // Get total counts with error handling
-    console.log('Fetching user count...');
+    // Get total counts
     const totalUsers = await prisma.user.count();
-    console.log('User count:', totalUsers);
-
-    console.log('Fetching product count...');
     const totalProducts = await prisma.product.count();
-    console.log('Product count:', totalProducts);
-
-    console.log('Fetching order count...');
     const totalOrders = await prisma.order.count();
-    console.log('Order count:', totalOrders);
-
-    console.log('Fetching category count...');
     const totalCategories = await prisma.category.count();
-    console.log('Category count:', totalCategories);
 
     // Get revenue statistics
-    console.log('Fetching revenue stats...');
     let revenueStats = { _sum: { total: null }, _count: 0 };
     try {
       revenueStats = await prisma.order.aggregate({
@@ -45,14 +25,11 @@ const getDashboardStats = async (req, res) => {
         },
         _count: true
       });
-      console.log('Revenue stats:', revenueStats);
     } catch (error) {
-      console.log('Error fetching revenue stats:', error.message);
       revenueStats = { _sum: { total: null }, _count: 0 };
     }
 
     // Get orders by status
-    console.log('Fetching orders by status...');
     let ordersByStatus = [];
     try {
       ordersByStatus = await prisma.order.groupBy({
@@ -61,14 +38,11 @@ const getDashboardStats = async (req, res) => {
           status: true
         }
       });
-      console.log('Orders by status:', ordersByStatus);
     } catch (error) {
-      console.log('Error fetching orders by status:', error.message);
       ordersByStatus = [];
     }
 
     // Get recent orders (last 10)
-    console.log('Fetching recent orders...');
     const recentOrders = await prisma.order.findMany({
       take: 10,
       orderBy: {
@@ -94,10 +68,8 @@ const getDashboardStats = async (req, res) => {
         }
       }
     });
-    console.log('Recent orders count:', recentOrders.length);
 
     // Get low stock products (less than 10 items)
-    console.log('Fetching low stock products...');
     const lowStockProducts = await prisma.product.findMany({
       where: {
         stock: {
@@ -111,10 +83,8 @@ const getDashboardStats = async (req, res) => {
         stock: 'asc'
       }
     });
-    console.log('Low stock products count:', lowStockProducts.length);
 
     // Get top selling products (by order count)
-    console.log('Fetching top selling products...');
     let topSellingProducts = [];
     let topProductsWithDetails = [];
     
@@ -131,14 +101,11 @@ const getDashboardStats = async (req, res) => {
         },
         take: 5
       });
-      console.log('Top selling products count:', topSellingProducts.length);
     } catch (error) {
-      console.log('No order items found, skipping top selling products');
       topSellingProducts = [];
     }
 
     // Get product details for top sellers
-    console.log('Fetching product details for top sellers...');
     if (topSellingProducts.length > 0) {
       topProductsWithDetails = await Promise.all(
         topSellingProducts.map(async (item) => {
@@ -152,13 +119,8 @@ const getDashboardStats = async (req, res) => {
           };
         })
       );
-      console.log('Top products with details count:', topProductsWithDetails.length);
-    } else {
-      console.log('No top selling products to process');
-      topProductsWithDetails = [];
     }
 
-    console.log('Preparing response...');
     res.json({
       overview: {
         totalUsers,
@@ -173,10 +135,8 @@ const getDashboardStats = async (req, res) => {
       lowStockProducts,
       topSellingProducts: topProductsWithDetails
     });
-    console.log('Dashboard stats response sent successfully');
   } catch (error) {
-    console.error('Dashboard stats error:', error);
-    console.error('Error stack:', error.stack);
+    Logger.error('Dashboard stats error', error);
     res.status(500).json({ message: 'Error fetching dashboard statistics' });
   }
 };
@@ -257,7 +217,7 @@ const getAllOrders = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get all orders error:', error);
+    Logger.error('Get all orders error', error);
     res.status(500).json({ message: 'Error fetching orders' });
   }
 };
@@ -320,7 +280,7 @@ const getAllUsers = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get all users error:', error);
+    Logger.error('Get all users error', error);
     res.status(500).json({ message: 'Error fetching users' });
   }
 };
@@ -394,7 +354,7 @@ const getInventoryOverview = async (req, res) => {
       productsByCategory
     });
   } catch (error) {
-    console.error('Inventory overview error:', error);
+    Logger.error('Inventory overview error', error);
     res.status(500).json({ message: 'Error fetching inventory overview' });
   }
 };
@@ -487,7 +447,7 @@ const getSalesAnalytics = async (req, res) => {
       topCategories: categorySalesArray.slice(0, 5)
     });
   } catch (error) {
-    console.error('Sales analytics error:', error);
+    Logger.error('Sales analytics error', error);
     res.status(500).json({ message: 'Error fetching sales analytics' });
   }
 };
@@ -597,7 +557,7 @@ const getAnalytics = async (req, res) => {
       userRegistrationsByMonth
     });
   } catch (error) {
-    console.error('Analytics error:', error);
+    Logger.error('Analytics error', error);
     res.status(500).json({ message: 'Error fetching analytics' });
   }
 };

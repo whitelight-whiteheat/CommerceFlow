@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const prisma = require('../config/database');
 const { validationResult } = require('express-validator');
 const { generateToken } = require('../utils/jwtUtils');
+const Logger = require('../utils/logger');
 
 const register = async (req, res) => {
   try {
@@ -52,7 +53,7 @@ const register = async (req, res) => {
       token
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    Logger.error('Registration error', error);
     res.status(500).json({ message: 'Error creating user' });
   }
 };
@@ -65,7 +66,6 @@ const login = async (req, res) => {
     }
 
     const { email, password } = req.body;
-    console.log('Login attempt for email:', email);
 
     // Find user
     const user = await prisma.user.findUnique({
@@ -73,15 +73,11 @@ const login = async (req, res) => {
     });
 
     if (!user) {
-      console.log('User not found for email:', email);
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    console.log('User found:', { id: user.id, email: user.email, hasPassword: !!user.password });
-
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log('Password match:', isMatch);
 
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -99,7 +95,7 @@ const login = async (req, res) => {
       token
     });
   } catch (error) {
-    console.error('Login error:', error);
+    Logger.error('Login error', error);
     res.status(500).json({ message: 'Error logging in' });
   }
 };
@@ -119,7 +115,7 @@ const getProfile = async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    console.error('Get profile error:', error);
+    Logger.error('Get profile error', error);
     res.status(500).json({ message: 'Error fetching profile' });
   }
 };
@@ -158,7 +154,7 @@ const updateProfile = async (req, res) => {
 
     res.json(updatedUser);
   } catch (error) {
-    console.error('Update profile error:', error);
+    Logger.error('Update profile error', error);
     res.status(500).json({ message: 'Error updating profile' });
   }
 };
@@ -229,8 +225,27 @@ const getOrderHistory = async (req, res) => {
       stats
     });
   } catch (error) {
-    console.error('Get order history error:', error);
+    Logger.error('Get order history error', error);
     res.status(500).json({ message: 'Error fetching order history' });
+  }
+};
+
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+    res.json({ users });
+  } catch (error) {
+    Logger.error('Get all users error', error);
+    res.status(500).json({ message: 'Error fetching users' });
   }
 };
 
@@ -239,5 +254,6 @@ module.exports = {
   login,
   getProfile,
   updateProfile,
-  getOrderHistory
+  getOrderHistory,
+  getAllUsers
 }; 

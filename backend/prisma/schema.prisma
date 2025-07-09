@@ -20,6 +20,10 @@ model User {
   updatedAt DateTime @updatedAt
   orders    Order[]
   cart      Cart?
+
+  @@index([email])
+  @@index([role])
+  @@index([createdAt])
 }
 
 model Product {
@@ -35,6 +39,12 @@ model Product {
   updatedAt   DateTime @updatedAt
   cartItems   CartItem[]
   orderItems  OrderItem[]
+
+  @@index([categoryId])
+  @@index([price])
+  @@index([stock])
+  @@index([createdAt])
+  @@index([name])
 }
 
 model Category {
@@ -63,6 +73,10 @@ model CartItem {
   quantity  Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([cartId])
+  @@index([productId])
+  @@unique([cartId, productId])
 }
 
 model Order {
@@ -75,6 +89,11 @@ model Order {
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   history   OrderHistory[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([total])
 }
 
 model OrderItem {
@@ -87,6 +106,9 @@ model OrderItem {
   price     Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([productId])
 }
 
 model OrderHistory {

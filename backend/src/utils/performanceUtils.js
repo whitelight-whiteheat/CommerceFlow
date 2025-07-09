@@ -171,15 +171,6 @@ const monitoringUtils = {
 const dbUtils = {
   // Optimize Prisma client for production
   optimizePrisma: (prisma) => {
-    // Enable query logging in development
-    if (process.env.NODE_ENV === 'development') {
-      prisma.$on('query', (e) => {
-        console.log('Query: ' + e.query);
-        console.log('Params: ' + e.params);
-        console.log('Duration: ' + e.duration + 'ms');
-      });
-    }
-
     // Handle connection errors
     prisma.$on('error', (e) => {
       console.error('Prisma error:', e);

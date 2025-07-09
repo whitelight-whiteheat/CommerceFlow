@@ -2,6 +2,7 @@
 const prisma = require('../config/database');
 const { validationResult } = require('express-validator');
 const { cacheUtils, queryUtils, monitoringUtils, responseUtils } = require('../utils/performanceUtils');
+const Logger = require('../utils/logger');
 
 // Create a new product
 const createProduct = async (req, res) => {
@@ -40,7 +41,7 @@ const createProduct = async (req, res) => {
         responseUtils.addPerformanceHeaders(res, startTime);
         res.status(201).json(product);
     } catch (error) {
-        console.error('Create product error:', error);
+        Logger.error('Create product error', error);
         res.status(500).json({ message: 'Error creating product', error: error.message });
     }
 };
@@ -102,7 +103,7 @@ const getProducts = async (req, res) => {
         responseUtils.addPerformanceHeaders(res, startTime);
         res.json(result);
     } catch (error) {
-        console.error('Get all products error:', error);
+        Logger.error('Get all products error', error);
         res.status(500).json({ message: 'Error fetching products', error: error.message });
     }
 };
@@ -137,7 +138,7 @@ const getProduct = async (req, res) => {
         responseUtils.addPerformanceHeaders(res, startTime);
         res.json(product);
     } catch (error) {
-        console.error('Get product by ID error:', error);
+        Logger.error('Get product by ID error', error);
         res.status(500).json({ message: 'Error fetching product' });
     }
 };
@@ -194,7 +195,7 @@ const updateProduct = async (req, res) => {
         responseUtils.addPerformanceHeaders(res, startTime);
         res.json(updatedProduct);
     } catch (error) {
-        console.error('Update product error:', error);
+        Logger.error('Update product error', error);
         res.status(500).json({ message: 'Error updating product', error: error.message });
     }
 };
@@ -225,7 +226,7 @@ const deleteProduct = async (req, res) => {
         responseUtils.addPerformanceHeaders(res, startTime);
         res.json({ message: 'Product deleted successfully' });
     } catch (error) {
-        console.error('Delete product error:', error);
+        Logger.error('Delete product error', error);
         res.status(500).json({ message: 'Error deleting product', error: error.message });
     }
 };
@@ -236,7 +237,7 @@ const getPerformanceMetrics = async (req, res) => {
         const metrics = monitoringUtils.getMetrics();
         res.json(metrics);
     } catch (error) {
-        console.error('Get performance metrics error:', error);
+        Logger.error('Get performance metrics error', error);
         res.status(500).json({ message: 'Error fetching performance metrics' });
     }
 };

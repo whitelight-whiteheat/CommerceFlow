@@ -8,8 +8,8 @@ const ENV_CONFIG = {
   DATABASE_HOST: process.env.NODE_ENV === 'production' ? 'postgres' : 'localhost',
   DATABASE_PORT: 5432,
 
-  // JWT
-  JWT_SECRET: process.env.JWT_SECRET,
+  // JWT (Portfolio Demo - Simple defaults for easy access)
+  JWT_SECRET: process.env.JWT_SECRET || 'portfolio-demo-secret',
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '24h',
   JWT_ISSUER: process.env.JWT_ISSUER || 'ecommerce-api',
   JWT_AUDIENCE: process.env.JWT_AUDIENCE || 'ecommerce-users',
@@ -19,12 +19,12 @@ const ENV_CONFIG = {
   PORT: process.env.PORT || 3001,
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:3000',
 
-  // Security
-  CORS_ORIGIN: process.env.CORS_ORIGIN || process.env.FRONTEND_URL || 'http://localhost:3000',
+  // Security (Portfolio Demo - Relaxed for easy access)
+  CORS_ORIGIN: process.env.CORS_ORIGIN || '*',
   RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 900000,
-  RATE_LIMIT_MAX_REQUESTS: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+  RATE_LIMIT_MAX_REQUESTS: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 1000,
 
-  // Admin (should be configurable)
+  // Admin (Portfolio Demo - Default credentials for easy access)
   ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'admin@example.com',
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'admin123',
 
@@ -38,18 +38,13 @@ const ENV_CONFIG = {
   LOG_FORMAT: process.env.LOG_FORMAT || 'combined'
 };
 
-// Validation function
+// Validation function (Portfolio Demo - Simplified for easy setup)
 const validateEnvironment = () => {
-  const required = ['JWT_SECRET', 'DATABASE_URL'];
+  const required = ['DATABASE_URL'];
   const missing = required.filter(key => !ENV_CONFIG[key]);
   
   if (missing.length > 0) {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
-  }
-
-  // Validate JWT_SECRET is the required value
-  if (ENV_CONFIG.JWT_SECRET !== 'b40c000ecd38bca4e57e6945e411207843b6945830d81fb4aa24c6f51d11251b') {
-    throw new Error('JWT_SECRET must be set to the required value');
   }
 };
 

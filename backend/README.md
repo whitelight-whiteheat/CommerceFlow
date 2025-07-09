@@ -104,7 +104,8 @@ backend/
 
 - `npm run dev` - Start development server
 - `npm start` - Start production server
-- `npm test` - Run tests
+- `npm run demo` - Run portfolio demo test suite
+- `npm test` - Run Jest tests
 - `npm run build` - Build for production
 
 ## 🔒 Security Features
@@ -123,6 +124,25 @@ backend/
 - **Order Management:** Order creation, status tracking, history
 - **Analytics Dashboard:** Sales metrics, product performance, user analytics
 - **Admin Dashboard:** Comprehensive admin interface
+
+## 🧪 Portfolio Demo Testing
+
+The project includes a comprehensive demo test runner that showcases all major features:
+
+```bash
+npm run demo
+```
+
+This test runner:
+- Verifies all API endpoints are working
+- Tests authentication with demo credentials
+- Demonstrates admin and customer features
+- Validates portfolio demo configuration
+- Provides clear feedback and next steps
+
+**Demo Credentials:**
+- Admin: admin@example.com / admin123
+- User: demo@example.com / demo123
 
 ## 🐳 Docker
 
