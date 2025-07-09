@@ -45,7 +45,8 @@ const configureRoutes = (app) => {
   } catch (error) {
     console.error('❌ Error configuring routes:', error);
     console.error('Error stack:', error.stack);
-    throw error;
+    // Don't throw error - let app start with basic functionality
+    console.log('⚠️  Continuing with basic app functionality...');
   }
 };
 

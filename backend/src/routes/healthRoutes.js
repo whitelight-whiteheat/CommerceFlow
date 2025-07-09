@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const prisma = require('../config/database');
+const { prisma } = require('../config/database');
 
 /**
  * Basic health check endpoint - Railway health check
