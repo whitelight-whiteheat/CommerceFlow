@@ -14,7 +14,7 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+RUN npm install --only=production && npm cache clean --force
 
 # Stage 2: Build (for production)
 FROM node:18-alpine AS builder
@@ -28,7 +28,7 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install all dependencies (including dev dependencies)
-RUN npm ci
+RUN npm install
 
 # Copy source code
 COPY . .
@@ -48,7 +48,7 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install all dependencies
-RUN npm ci
+RUN npm install
 
 # Copy source code
 COPY . .
@@ -82,7 +82,7 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install production dependencies
-RUN npm ci --only=production && npm cache clean --force
+RUN npm install --only=production && npm cache clean --force
 
 # Copy built application from builder stage
 COPY --from=builder /app/src ./src
