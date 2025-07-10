@@ -69,7 +69,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     try {
       setLoading(true);
       const response = await apiClient.get('/cart');
-      setCart(response.data);
+      setCart(response.data as Cart);
     } catch (error: any) {
       logError(error, 'CartContext');
       setCart(null);

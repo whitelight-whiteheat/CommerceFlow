@@ -14,7 +14,7 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install dependencies
-RUN npm install --only=production && npm cache clean --force
+RUN npm install --only=production
 
 # Stage 2: Build (for production)
 FROM node:18-alpine AS builder
@@ -70,14 +70,10 @@ CMD ["npm", "run", "dev"]
 FROM node:18-alpine AS production
 WORKDIR /app
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
-
 # Install dependencies for native modules
 RUN apk add --no-cache python3 make g++
 
-# Copy package files
+# Copy package files and prisma schema
 COPY package*.json ./
 COPY prisma ./prisma/
 
@@ -86,10 +82,13 @@ RUN npm install --only=production && npm cache clean --force
 
 # Copy built application from builder stage
 COPY --from=builder /app/src ./src
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-# Generate Prisma client
+# Generate Prisma client (MUST be after npm install in the image)
 RUN npx prisma generate
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
 
 # Change ownership to nodejs user
 RUN chown -R nodejs:nodejs /app

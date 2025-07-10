@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { apiClient } from './api';
 
 // Error types for API responses
@@ -21,10 +21,15 @@ export class ApiErrorHandler extends Error {
   }
 }
 
+// Custom type guard for Axios errors
+function isAxiosError(error: any): boolean {
+  return error && typeof error === 'object' && 'isAxiosError' in error;
+}
+
 // Centralized error handler for API calls
 export const handleApiError = (error: unknown): ApiErrorResponse => {
-  if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError<ApiErrorResponse>;
+  if (isAxiosError(error)) {
+    const axiosError = error as any; // Use 'any' due to AxiosError import issues
     
     // Network error
     if (!axiosError.response) {
@@ -189,8 +194,8 @@ export const formatErrorForDisplay = (error: unknown): string => {
   const message = getErrorMessage(error);
   
   // Add timestamp if available
-  if (axios.isAxiosError(error) && error.response?.data?.timestamp) {
-    return `${message} (Error occurred at ${new Date(error.response.data.timestamp).toLocaleString()})`;
+  if (isAxiosError(error) && (error as any).response?.data?.timestamp) {
+    return `${message} (Error occurred at ${new Date((error as any).response.data.timestamp).toLocaleString()})`;
   }
   
   return message;

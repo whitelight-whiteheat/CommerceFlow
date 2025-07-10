@@ -27,9 +27,9 @@ const Users: React.FC = () => {
       if (searchTerm) params.append('search', searchTerm);
       if (roleFilter) params.append('role', roleFilter);
 
-      const response = await apiClient.get(`/admin/users?${params}`);
-      setUsers(response.data);
-      setTotalPages(response.data.pagination.pages);
+      const response = await apiClient.get('/admin/users?' + params);
+      setUsers((response.data as { users: User[]; pagination: { pages: number } }).users);
+      setTotalPages((response.data as { users: User[]; pagination: { pages: number } }).pagination.pages);
     } catch (error) {
       console.error('Error fetching users:', error);
     } finally {

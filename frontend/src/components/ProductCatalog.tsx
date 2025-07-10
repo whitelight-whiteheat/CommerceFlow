@@ -48,7 +48,7 @@ const ProductCatalog: React.FC = () => {
     try {
       setLoading(true);
       const response = await apiClient.get('/products');
-      setProducts(response.data.products || []);
+      setProducts((response.data as { products: Product[] }).products || []);
     } catch (error) {
       console.error('Failed to fetch products:', error);
       setProducts([]);
@@ -60,7 +60,7 @@ const ProductCatalog: React.FC = () => {
   const fetchCategories = async () => {
     try {
       const response = await apiClient.get('/categories');
-      setCategories(response.data);
+      setCategories(response.data as Category[]);
     } catch (error) {
       console.error('Failed to fetch categories:', error);
     }

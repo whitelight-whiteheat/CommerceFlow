@@ -113,3 +113,43 @@ export interface Toast {
   message: string;
   duration?: number;
 } 
+
+export type AnalyticsData = {
+  totalSales: number;
+  totalOrders: number;
+  averageOrderValue: number;
+  topProducts: Array<{ id?: string; name: string; sales: number }>;
+  salesByMonth: Array<{ month: string; sales: number }>;
+  userRegistrationsByMonth: Array<{ month: string; users: number }>;
+}
+
+// Type Guard for Analytics Data
+// This function checks if the data is a valid AnalyticsData object
+export function isAnalyticsData(data: any): data is AnalyticsData {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    typeof data.totalSales === 'number' &&
+    typeof data.totalOrders === 'number' &&
+    typeof data.averageOrderValue === 'number' &&
+    Array.isArray(data.topProducts) &&
+    data.topProducts.every(
+      (item: any) =>
+        (typeof item.id === 'string' || typeof item.id === 'undefined') &&
+        typeof item.name === 'string' &&
+        typeof item.sales === 'number'
+    ) &&
+    Array.isArray(data.salesByMonth) &&
+    data.salesByMonth.every(
+      (item: any) =>
+        typeof item.month === 'string' &&
+        typeof item.sales === 'number'
+    ) &&
+    Array.isArray(data.userRegistrationsByMonth) &&
+    data.userRegistrationsByMonth.every(
+      (item: any) =>
+        typeof item.month === 'string' &&
+        typeof item.users === 'number'
+    )
+  );
+}

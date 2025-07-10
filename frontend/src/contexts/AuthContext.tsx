@@ -44,9 +44,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
       // verify token by getting user profile
-      apiClient.get('/users/profile')
+      Promise.resolve(apiClient.get('/users/profile'))
         .then(response => {
-          setUser(response.data);
+          setUser(response.data as User);
         })
         .catch((error) => {
           logError(error, 'AuthContext');
@@ -68,13 +68,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // login function
   const login = async (email: string, password: string) => {
     try {
-      const response = await apiClient.post('/users/login', {
+      const response = await apiClient.post<{ token: string; user: User }>(`/users/login`, {
         email,
         password
       });
-
       // get token and user data from response
-      const { token, user: userData } = response.data;
+      const { token, user: userData } = response.data as { token: string; user: User };
       
       // set token and user data in local storage
       localStorage.setItem('token', token);

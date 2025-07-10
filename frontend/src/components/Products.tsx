@@ -52,9 +52,8 @@ const Products: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await apiClient.get('/admin/products');
-      // Handle the response structure: { products: [], pagination: {} }
-      const productsData = response.data.products || response.data || [];
+      const response = await apiClient.get<{ products: Product[]; pagination?: any }>(`/admin/products`);
+      const productsData = (response.data as { products: Product[]; pagination?: any }).products || response.data || [];
       setProducts(Array.isArray(productsData) ? productsData : []);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -67,7 +66,7 @@ const Products: React.FC = () => {
   const fetchCategories = async () => {
     try {
       const response = await apiClient.get('/admin/categories');
-      const categoriesData = response.data || [];
+      const categoriesData = response.data as Category[] || [];
       setCategories(Array.isArray(categoriesData) ? categoriesData : []);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -78,15 +77,14 @@ const Products: React.FC = () => {
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await apiClient.post('/products', {
+      const response = await apiClient.post<Product>(`/products`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
-
-      setProducts([...products, response.data]);
+      setProducts([...products, response.data as Product]);
       setShowAddModal(false);
       setFormData({
         name: '',
@@ -107,7 +105,7 @@ const Products: React.FC = () => {
     if (!editingProduct) return;
 
     try {
-      const response = await apiClient.put(`/products/${editingProduct.id}`, {
+      const response = await apiClient.put<Product>(`/products/${editingProduct.id}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
           'Content-Type': 'application/json',
@@ -115,7 +113,7 @@ const Products: React.FC = () => {
         body: JSON.stringify(formData),
       });
 
-      setProducts(products.map(p => p.id === editingProduct.id ? response.data : p));
+      setProducts(products.map(p => p.id === editingProduct.id ? (response.data as Product) : p));
       setShowEditModal(false);
       setEditingProduct(null);
       setFormData({

@@ -48,7 +48,7 @@ const CustomerDashboard: React.FC = () => {
     try {
       setLoading(true);
       const response = await apiClient.get('/users/orders');
-      setOrders(response.data.orders || []);
+      setOrders((response.data as { orders: Order[] }).orders || []);
     } catch (error) {
       console.error('Failed to fetch orders:', error);
     } finally {

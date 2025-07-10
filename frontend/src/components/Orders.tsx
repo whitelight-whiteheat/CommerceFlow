@@ -49,9 +49,9 @@ const Orders: React.FC = () => {
       if (statusFilter) params.append('status', statusFilter);
       if (searchTerm) params.append('search', searchTerm);
 
-      const response = await apiClient.get(`/admin/orders?${params}`);
-      setOrders(response.data);
-      setTotalPages(response.data.pagination.pages);
+      const response = await apiClient.get('/admin/orders?' + params);
+      setOrders((response.data as { orders: Order[]; pagination: { pages: number } }).orders);
+      setTotalPages((response.data as { orders: Order[]; pagination: { pages: number } }).pagination.pages);
     } catch (error) {
       console.error('Error fetching orders:', error);
     } finally {
@@ -65,8 +65,8 @@ const Orders: React.FC = () => {
 
   const updateOrderStatus = async (orderId: string, status: string) => {
     try {
-      const response = await apiClient.put(`/orders/${orderId}/status`, { status });
-      setOrders(orders.map(o => o.id === orderId ? response.data : o));
+      const response = await apiClient.put<Order>(`/orders/${orderId}/status`, { status });
+      setOrders(orders.map(o => o.id === orderId ? (response.data as Order) : o));
     } catch (error) {
       console.error('Error updating order status:', error);
     }
