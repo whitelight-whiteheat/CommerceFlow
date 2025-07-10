@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '../utils/api';
+import { isAnalyticsData } from '../utils/types'; // Adjust the import path if needed
 
 interface AnalyticsData {
   totalSales: number;
@@ -27,7 +28,7 @@ const Analytics: React.FC = () => {
   const fetchAnalytics = useCallback(async () => {
     try {
       const response = await apiClient.get(`/admin/analytics?period=${period}`);
-      setAnalytics(response.data);
+      setAnalytics(response.data as AnalyticsData);
     } catch (error) {
       console.error('Error fetching analytics:', error);
     } finally {
