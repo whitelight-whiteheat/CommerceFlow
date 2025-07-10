@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { apiClient } from './api';
 
 // Error types for API responses
