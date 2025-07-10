@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '../utils/api';
-import { isAnalyticsData } from '../utils/types'; // Adjust the import path if needed
 
 interface AnalyticsData {
   totalSales: number;
