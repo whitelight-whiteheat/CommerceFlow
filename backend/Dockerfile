@@ -6,8 +6,8 @@
 FROM node:18-alpine AS deps
 WORKDIR /app
 
-# Install dependencies for native modules
-RUN apk add --no-cache python3 make g++
+# Install dependencies for native modules and OpenSSL 1.1 compatibility
+RUN apk add --no-cache python3 make g++ openssl1.1-compat
 
 # Copy package files
 COPY package*.json ./
@@ -20,8 +20,8 @@ RUN npm install --only=production
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Install dependencies for native modules
-RUN apk add --no-cache python3 make g++
+# Install dependencies for native modules and OpenSSL 1.1 compatibility
+RUN apk add --no-cache python3 make g++ openssl1.1-compat
 
 # Copy package files
 COPY package*.json ./
@@ -40,8 +40,8 @@ RUN npx prisma generate
 FROM node:18-alpine AS development
 WORKDIR /app
 
-# Install dependencies for native modules
-RUN apk add --no-cache python3 make g++
+# Install dependencies for native modules and OpenSSL 1.1 compatibility
+RUN apk add --no-cache python3 make g++ openssl1.1-compat
 
 # Copy package files
 COPY package*.json ./
@@ -70,8 +70,8 @@ CMD ["npm", "run", "dev"]
 FROM node:18-alpine AS production
 WORKDIR /app
 
-# Install dependencies for native modules
-RUN apk add --no-cache python3 make g++
+# Install dependencies for native modules and OpenSSL 1.1 compatibility
+RUN apk add --no-cache python3 make g++ openssl1.1-compat
 
 # Copy package files and prisma schema
 COPY package*.json ./
